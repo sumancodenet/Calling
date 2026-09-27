@@ -1,75 +1,96 @@
+import { randomUUID } from "node:crypto";
 import bcrypt from "bcryptjs";
-import Users from "./auth.model.js";
-import { string } from "../../../constants/string.js";
-import { sendCreated, sendError } from "../../../utils/response.js";
+import { login, rotateRefreshToken, revokeSession, revokeAllSessions, listActiveSessions, listRoles } from "./auth.service.js";
+import { setRefreshCookie, clearRefreshCookie, REFRESH_COOKIE } from "../../../utils/tokens.js";
+import { sendSuccess, sendCreated } from "../../../utils/response.js";
+import { unauthorized } from "../../../utils/AppError.js";
+import { asyncHandler } from "../../../utils/asyncHandler.js";
+import { Users } from "../../../models/index.js";
 
 const SALT_ROUNDS = 10;
 
-export const createSuperAdmin = async (req, res) => {
-  try {
-    const { userName, fullName, email, phone, password } = req.body;
+const requestMeta = (req) => ({
+  userAgent: req.get("user-agent")?.slice(0, 255) ?? null,
+  ip: req.ip ?? null,
+});
 
-    const missing = ["userName", "fullName", "password"].filter((field) => !req.body[field]);
-    if (missing.length) {
-      return sendError(res, {
-        statusCode: 422,
-        message: `Missing required fields: ${missing.join(", ")}`,
-      });
-    }
-
-    if (typeof password === "string" && password.length < 8) {
-      return sendError(res, { statusCode: 422, message: "Password must be at least 8 characters" });
-    }
-
-    const existingSuperAdmin = await Users.findOne({ where: { role: roleMap.SUPER_ADMIN } });
-    if (existingSuperAdmin) {
-      return sendError(res, { statusCode: 409, message: "Super admin already exists" });
-    }
-
-    if (email) {
-      const emailTaken = await Users.findOne({ where: { email } });
-      if (emailTaken) {
-        return sendError(res, { statusCode: 409, message: "Email already in use" });
-      }
-    }
-
-    if (phone) {
-      const phoneTaken = await Users.findOne({ where: { phone } });
-      if (phoneTaken) {
-        return sendError(res, { statusCode: 409, message: "Phone already in use" });
-      }
-    }
-
-    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-
-    const superAdmin = await Users.create({
-      userId: 'ADMIN-' + Date.now(),
-      userName,
-      fullName,
-      email: email || null,
-      phone: phone || null,
-      password: hashedPassword,
-      role: string.ADMIN,
-      Status: "ACTIVE",
-      IsReset: false,
-    });
-
-    return sendCreated(res, {
-      message: "Super admin created successfully",
-      data: {
-        userId: superAdmin.userId,
-        userName: superAdmin.userName,
-        fullName: superAdmin.fullName,
-        email: superAdmin.email,
-        phone: superAdmin.phone,
-        role: superAdmin.role,
-        status: superAdmin.Status,
-      },
-    });
-  } catch (error) {
-    return sendError(res, {
-      statusCode: error.name === "SequelizeUniqueConstraintError" ? 409 : 500,
-      message: error.name === "SequelizeUniqueConstraintError" ? "Email or phone already in use" : error.message,
-    });
-  }
+const withTokens = (res, { accessToken, refreshToken, user }) => {
+  setRefreshCookie(res, refreshToken);
+  return { accessToken, user };
 };
+
+export const loginController = asyncHandler(async (req, res) => {
+  const { tenantSlug, userName, password } = req.body;
+  const result = await login({ tenantSlug, userName, password }, requestMeta(req));
+
+  return sendSuccess(res, {
+    statusCode: 200,
+    message: "Signed in successfully",
+    data: withTokens(res, result),
+  });
+});
+
+export const refreshController = asyncHandler(async (req, res) => {
+  const presented = req.cookies?.[REFRESH_COOKIE];
+  const result = await rotateRefreshToken(presented, requestMeta(req));
+
+  return sendSuccess(res, {
+    message: "Session refreshed",
+    data: withTokens(res, result),
+  });
+});
+
+export const logoutController = asyncHandler(async (req, res) => {
+  await revokeSession(req.cookies?.[REFRESH_COOKIE]);
+  clearRefreshCookie(res);
+  return sendSuccess(res, { message: "Signed out successfully" });
+});
+
+export const meController = asyncHandler(async (req, res) => {
+  return sendSuccess(res, { message: "Current session", data: req.user });
+});
+
+export const logoutAllController = asyncHandler(async (req, res) => {
+  await revokeAllSessions(req.user.id);
+  clearRefreshCookie(res);
+  return sendSuccess(res, { message: "Signed out of all devices" });
+});
+
+export const sessionsController = asyncHandler(async (req, res) => {
+  return sendSuccess(res, { data: await listActiveSessions(req.user.id) });
+});
+
+export const rolesController = asyncHandler(async (req, res) => {
+  return sendSuccess(res, {
+    message: "Role catalog",
+    data: await listRoles(),
+    meta: { permissionsEnforced: false },
+  });
+});
+
+export const createSuperAdmin = asyncHandler(async (req, res) => {
+  const { userName, fullName, email, phone, password } = req.body;
+  const tenantId = req.user?.tenant?.id;
+
+  if (!tenantId) throw unauthorized("Cannot determine workspace for the new user");
+
+  const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+  const admin = await Users.create({
+    tenantId,
+    userId: `USR-${randomUUID().slice(0, 8).toUpperCase()}`,
+    userName,
+    fullName,
+    email: email || null,
+    phone: phone || null,
+    password: hashedPassword,
+    role: req.user.role,
+    Status: "ACTIVE",
+    IsReset: true,
+  });
+
+  return sendCreated(res, {
+    message: "User created successfully",
+    data: { id: admin.id, userId: admin.userId, userName: admin.userName, fullName: admin.fullName },
+  });
+});

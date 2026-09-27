@@ -1,33 +1,21 @@
-import "dotenv/config";
-import { Sequelize } from "sequelize";
-
-const sequelize = new Sequelize(process.env.DB_DBNAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT) || 3306,
-  dialect: "mysql",
-  logging: false,
-});
+import env from "./env.js";
+import sequelize from "./sequelize.js";
+import "../models/index.js";
 
 export const connectDB = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("Database connected successfully");
-  } catch (error) {
-    console.error("Database connection failed:", error.message);
-    process.exit(1);
-  }
+  await sequelize.authenticate();
+  console.log("[db] connected successfully");
+  return sequelize;
 };
 
-export const syncDB = async ({ alter = false, force = false } = {}) => {
-  try {
-    await sequelize.sync({ alter, force });
-    console.log(`Database tables synced${alter ? " (alter)" : ""}`);
-  } catch (error) {
-    console.error("Database sync failed:", error.message);
-    process.exit(1);
+export const syncDB = async ({ alter = env.db.syncAlter, force = false } = {}) => {
+  if (env.isProduction && (alter || force)) {
+    throw new Error("Refusing to run sequelize.sync({ alter, force }) in production. Use migrations instead.");
   }
+  await sequelize.sync({ alter, force });
+  console.log(`[db] tables synced${alter ? " (alter)" : ""}${force ? " (force)" : ""}`);
+  return sequelize;
 };
 
 export { sequelize };
-
 export default sequelize;

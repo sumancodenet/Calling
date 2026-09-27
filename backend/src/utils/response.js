@@ -1,7 +1,8 @@
 export class ApiResponse {
-  constructor(statusCode, message, data = null, meta = null) {
+  constructor(statusCode, message, data = null, meta = null, code = null) {
     this.statusCode = statusCode;
     this.success = statusCode < 400;
+    if (code) this.code = code;
     this.message = message;
     this.data = data;
     this.meta = meta;
@@ -17,8 +18,8 @@ export const sendSuccess = (res, { statusCode = 200, message = "Success", data =
 export const sendCreated = (res, { message = "Created successfully", data = null, meta = null } = {}) =>
   sendSuccess(res, { statusCode: 201, message, data, meta });
 
-export const sendError = (res, { statusCode = 500, message = "Something went wrong", data = null } = {}) => {
-  const response = new ApiResponse(statusCode, message, data);
+export const sendError = (res, { statusCode = 500, code = null, message = "Something went wrong", data = null } = {}) => {
+  const response = new ApiResponse(statusCode, message, data, null, code);
   return res.status(response.statusCode).json(response);
 };
 
