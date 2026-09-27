@@ -157,6 +157,13 @@ export const auth = {
   listRoles: () => request("/api/auth/roles", { auth: true }),
   listUsers: (params) => request(`/api/users${qs(params)}`, { auth: true }),
   listPipelines: () => request("/api/pipelines", { auth: true }),
+
+  createUsers: (users) => request("/api/users/bulk", { method: "POST", auth: true, body: { users } }),
+
+  getUser: (id) => request(`/api/users/${id}`, { auth: true }),
+  updateUser: (id, patch) => request(`/api/users/${id}`, { method: "PATCH", auth: true, body: patch }),
+  changePassword: (id, newPassword) => request(`/api/users/${id}/password`, { method: "POST", auth: true, body: { newPassword } }),
+  deleteUser: (id) => request(`/api/users/${id}`, { method: "DELETE", auth: true }),
 };
 
 export default auth;

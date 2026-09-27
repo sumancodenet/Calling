@@ -34,6 +34,11 @@ const Users = sequelize.define(
     phone: {
       type: DataTypes.STRING,
       allowNull: true,
+      // Uniqueness is per tenant (see the composite index below), not global.
+    },
+    employeeId: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
     },
     password: {
       type: DataTypes.TEXT,

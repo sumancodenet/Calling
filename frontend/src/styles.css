@@ -1211,6 +1211,33 @@ code {
   color: var(--text-secondary);
 }
 
+/* Wide variant: the users table carries every field a create payload accepts. */
+.table--wide {
+  min-width: 1040px;
+}
+
+.table--wide th,
+.table--wide td {
+  white-space: nowrap;
+}
+
+.cell-clip {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table__actions {
+  width: 1%;
+  text-align: right;
+}
+
+.badge--warning {
+  background: var(--warning-soft);
+  border-color: var(--warning-border);
+  color: var(--warning);
+}
+
 /* ---------- empty state ---------- */
 .empty {
   display: flex;
@@ -1305,7 +1332,9 @@ code {
   position: fixed;
   right: var(--sp-6);
   bottom: var(--sp-6);
-  z-index: 100;
+  /* Below .modal (90): a toast must never sit on top of a blocking dialog,
+     or it covers the dialog's own action buttons. */
+  z-index: 80;
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
@@ -1599,6 +1628,171 @@ code {
   flex-shrink: 0;
 }
 
+/* ---------- kebab menu ---------- */
+.kebab {
+  position: relative;
+  display: inline-flex;
+}
+
+.kebab__trigger {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-md);
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  transition: background var(--ease) 0.15s, color var(--ease) 0.15s, border-color var(--ease) 0.15s;
+}
+
+.kebab__trigger:hover:not(:disabled),
+.kebab__trigger[aria-expanded="true"] {
+  background: var(--surface-hover);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.kebab__trigger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kebab__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 30;
+  min-width: 190px;
+  padding: var(--sp-1);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  animation: menu-in 0.14s var(--ease-out);
+}
+
+.kebab__item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: 520;
+  text-align: left;
+  white-space: nowrap;
+  transition: background var(--ease) 0.12s, color var(--ease) 0.12s;
+}
+
+.kebab__item:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.kebab__item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.kebab__item--danger {
+  color: var(--danger);
+}
+
+.kebab__item--danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ---------- confirm dialog ---------- */
+.modal__panel--sm {
+  max-width: 440px;
+}
+
+.modal__foot--end {
+  justify-content: flex-end;
+}
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-8) var(--sp-6) var(--sp-5);
+  text-align: center;
+}
+
+.confirm__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+.confirm__icon--danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.confirm__icon--info {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.confirm__title {
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 640;
+  letter-spacing: -0.02em;
+}
+
+.confirm__message {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  max-width: 44ch;
+  line-height: 1.6;
+}
+
+.confirm__field {
+  width: 100%;
+  max-width: 320px;
+  margin-top: var(--sp-2);
+  text-align: left;
+}
+
+.confirm__field label {
+  justify-content: flex-start;
+  gap: 5px;
+}
+
+.confirm__field .field__error {
+  justify-content: flex-start;
+}
+
+.btn--danger-solid {
+  background: var(--danger);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(217, 45, 32, 0.3);
+}
+
+.btn--danger-solid:hover:not(:disabled) {
+  background: var(--danger-hover);
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ---------- horizontal tabs ---------- */
 .tabs {
   display: flex;
@@ -1791,7 +1985,174 @@ code {
   line-height: 1.55;
 }
 
+/* ---------- modal ---------- */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--sp-8) var(--sp-4);
+  overflow-y: auto;
+  background: rgba(10, 12, 22, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: fade-in 0.18s var(--ease);
+}
+
+.modal__panel {
+  width: 100%;
+  max-width: 720px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  animation: modal-in 0.24s var(--ease-out);
+}
+
+.modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-6) var(--sp-6) var(--sp-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.modal__title {
+  margin: 0;
+  font-size: var(--fs-xl);
+  font-weight: 660;
+  letter-spacing: -0.025em;
+}
+
+.modal__desc {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  max-width: 52ch;
+}
+
+.modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-6);
+  max-height: min(56vh, 520px);
+  overflow-y: auto;
+}
+
+.modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+  padding: var(--sp-4) var(--sp-6);
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 0 0 var(--r-xl) var(--r-xl);
+  font-size: var(--fs-sm);
+}
+
+/* ---------- repeatable user row ---------- */
+.userrow {
+  position: relative;
+  margin: 0;
+  padding: var(--sp-4);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--surface-2);
+}
+
+.userrow:focus-within {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.userrow__legend {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0;
+  margin-bottom: var(--sp-3);
+}
+
+.userrow__index {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--grad-brand);
+  color: #fff;
+  font-size: var(--fs-xs);
+  font-weight: 650;
+}
+
+.userrow__remove {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
+  transition: background var(--ease) 0.15s, color var(--ease) 0.15s;
+}
+
+.userrow__remove:hover:not(:disabled) {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.userrow__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-3);
+}
+
+.field__required {
+  color: var(--danger);
+  margin-left: 2px;
+}
+
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237b819b' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .userrow__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- animations ---------- */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

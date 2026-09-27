@@ -1,189 +1,136 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { auth, ApiError } from "../lib/api.js";
-import Alert from "../components/Alert.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 import Icon from "../components/Icon.jsx";
-import { useToast } from "../components/Toast.jsx";
+import Alert from "../components/Alert.jsx";
+import EmptyState from "../components/EmptyState.jsx";
+import AddUsersModal from "../components/AddUsersModal.jsx";
+import UserRowActions from "../components/UserRowActions.jsx";
+import { TableSkeleton } from "../components/Spinner.jsx";
 
-const EMPTY = { userName: "", fullName: "", email: "", phone: "", password: "" };
+const initialsOf = (name) =>
+  (name ?? "?")
+    .split(" ")
+    .filter(Boolean)
+    .map((p) => p.charAt(0))
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
 export const Team = () => {
-  const toast = useToast();
-  const [form, setForm] = useState(EMPTY);
-  const [fieldErrors, setFieldErrors] = useState({});
+  const { user: currentUser } = useAuth();
+  const currentUserId = currentUser?.id;
+  const [rows, setRows] = useState([]);
   const [error, setError] = useState(null);
-  const [details, setDetails] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  // Guards against out-of-order list responses overwriting fresher state.
+  const requestSeq = useRef(0);
 
-  const update = (key) => (event) => {
-    setForm((prev) => ({ ...prev, [key]: event.target.value }));
-    setFieldErrors((prev) => ({ ...prev, [key]: undefined }));
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError(null);
-    setDetails(null);
-    setFieldErrors({});
-    setSubmitting(true);
-
+  const load = useCallback(async () => {
+    const seq = ++requestSeq.current;
+    setLoading(true);
     try {
-      const payload = await auth.createUser({
-        userName: form.userName.trim(),
-        fullName: form.fullName.trim(),
-        email: form.email.trim() || undefined,
-        phone: form.phone.trim() || undefined,
-        password: form.password,
-      });
-
-      toast.success("User created", `${payload.data.fullName} can now sign in as "${payload.data.userName}".`);
-      setForm(EMPTY);
+      const payload = await auth.listUsers();
+      if (seq !== requestSeq.current) return;
+      setRows(payload.data);
+      setError(null);
     } catch (err) {
-      if (err instanceof ApiError) {
-        setError(err.message);
-        setFieldErrors(err.fieldErrors);
-        if (Array.isArray(err.details)) setDetails(err.details);
-        toast.error("Could not create user", err.message);
-      } else {
-        setError("Unexpected error. Please try again.");
-        toast.error("Could not create user", "Unexpected error. Please try again.");
-      }
+      if (seq !== requestSeq.current) return;
+      setError(err instanceof ApiError ? err.message : "Could not load the team.");
     } finally {
-      setSubmitting(false);
+      if (seq === requestSeq.current) setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <div className="page">
       <header className="page__header">
         <div>
           <h1 className="page__title">Team</h1>
-          <p className="page__subtitle">Add a teammate to this workspace.</p>
+          <p className="page__subtitle">Everyone working in this workspace.</p>
+        </div>
+        <div className="page__actions">
+          <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
+            <Icon name="plus" size={16} />
+            Add users
+          </button>
         </div>
       </header>
 
-      <div className="panel panel--narrow">
-        <div className="panel__head">
-          <div>
-            <h2 className="panel__title">New user</h2>
-            <p className="panel__desc">Usernames and emails are unique per workspace, not globally.</p>
+      {error ? <Alert tone="error">{error}</Alert> : null}
+
+      <div className="panel panel--flush">
+        {loading ? (
+          <TableSkeleton rows={4} cols={5} />
+        ) : rows.length === 0 ? (
+          <EmptyState
+            icon="users"
+            title="No users yet"
+            text="Add the first members of this workspace to get started."
+            action={
+              <button type="button" className="btn btn--primary" onClick={() => setAdding(true)} style={{ marginTop: 8 }}>
+                <Icon name="plus" size={16} />
+                Add users
+              </button>
+            }
+          />
+        ) : (
+          <div className="table-wrap">
+            <table className="table table--wide">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Employee ID</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th aria-label="Actions" />
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((user) => (
+                  <tr key={user.id}>
+                    <td>
+                      <span className="row" style={{ gap: 10 }}>
+                        <span className="avatar avatar--sm">{initialsOf(user.fullName)}</span>
+                        <span className="cell-user">
+                          <span className="cell-user__name">{user.fullName}</span>
+                          <span className="cell-user__mail">{user.userName}</span>
+                        </span>
+                      </span>
+                    </td>
+                    <td className="tabular">{user.phone ?? <span className="muted">-</span>}</td>
+                    <td className="cell-clip" title={user.email ?? ""}>
+                      {user.email ?? <span className="muted">-</span>}
+                    </td>
+                    <td className="table__mono">{user.employeeId ?? <span className="muted">-</span>}</td>
+                    <td>
+                      <span className="badge badge--neutral">{user.role}</span>
+                    </td>
+                    <td>
+                      <span className={user.Status === "ACTIVE" ? "badge badge--ok" : "badge badge--neutral"}>
+                        <span className="badge__dot" aria-hidden="true" />
+                        {user.Status}
+                      </span>
+                    </td>
+                    <td className="table__actions">
+                      <UserRowActions user={user} currentUserId={currentUserId} onChanged={load} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <Icon name="user" size={18} className="muted" />
-        </div>
-
-        {error ? (
-          <div style={{ marginBottom: 20 }}>
-            <Alert tone="error" onDismiss={() => setError(null)} errors={details}>
-              {error}
-            </Alert>
-          </div>
-        ) : null}
-
-        <form className="form" onSubmit={handleSubmit} noValidate>
-          <div className="field">
-            <label htmlFor="new-userName">Username</label>
-            <input
-              id="new-userName"
-              className="input"
-              value={form.userName}
-              onChange={update("userName")}
-              placeholder="jane.doe"
-              aria-invalid={Boolean(fieldErrors.userName)}
-              required
-            />
-            {fieldErrors.userName ? <span className="field__error">{fieldErrors.userName}</span> : null}
-          </div>
-
-          <div className="field">
-            <label htmlFor="new-fullName">Full name</label>
-            <input
-              id="new-fullName"
-              className="input"
-              value={form.fullName}
-              onChange={update("fullName")}
-              placeholder="Jane Doe"
-              aria-invalid={Boolean(fieldErrors.fullName)}
-              required
-            />
-            {fieldErrors.fullName ? <span className="field__error">{fieldErrors.fullName}</span> : null}
-          </div>
-
-          <div className="field-row">
-            <div className="field">
-              <label htmlFor="new-email">
-                Email <span className="field__optional">optional</span>
-              </label>
-              <input
-                id="new-email"
-                className="input"
-                type="email"
-                value={form.email}
-                onChange={update("email")}
-                placeholder="jane@company.com"
-                aria-invalid={Boolean(fieldErrors.email)}
-              />
-              {fieldErrors.email ? <span className="field__error">{fieldErrors.email}</span> : null}
-            </div>
-
-            <div className="field">
-              <label htmlFor="new-phone">
-                Phone <span className="field__optional">optional</span>
-              </label>
-              <input
-                id="new-phone"
-                className="input"
-                value={form.phone}
-                onChange={update("phone")}
-                placeholder="+91 90000 00000"
-                aria-invalid={Boolean(fieldErrors.phone)}
-              />
-              {fieldErrors.phone ? <span className="field__error">{fieldErrors.phone}</span> : null}
-            </div>
-          </div>
-
-          <div className="field">
-            <label htmlFor="new-password">Temporary password</label>
-            <input
-              id="new-password"
-              className="input"
-              type="password"
-              autoComplete="new-password"
-              value={form.password}
-              onChange={update("password")}
-              placeholder="At least 8 characters"
-              aria-invalid={Boolean(fieldErrors.password)}
-              required
-            />
-            {fieldErrors.password ? (
-              <span className="field__error">{fieldErrors.password}</span>
-            ) : (
-              <span className="muted" style={{ fontSize: 13 }}>
-                Share this out of band. There is no password reset flow yet.
-              </span>
-            )}
-          </div>
-
-          <hr className="divider" />
-
-          <div className="row">
-            <button type="submit" className="btn btn--primary" disabled={submitting}>
-              {submitting ? (
-                <>
-                  <span className="btn__spinner" aria-hidden="true" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Icon name="plus" size={16} />
-                  Create user
-                </>
-              )}
-            </button>
-            <button type="button" className="btn btn--ghost" onClick={() => setForm(EMPTY)} disabled={submitting}>
-              Reset
-            </button>
-          </div>
-        </form>
+        )}
       </div>
+
+      <AddUsersModal open={adding} onClose={() => setAdding(false)} onCreated={load} />
     </div>
   );
 };

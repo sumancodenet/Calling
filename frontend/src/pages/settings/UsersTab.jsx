@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { auth, ApiError } from "../../lib/api.js";
+import { useAuth } from "../../context/AuthContext.jsx";
 import Icon from "../../components/Icon.jsx";
 import Alert from "../../components/Alert.jsx";
 import EmptyState from "../../components/EmptyState.jsx";
+import AddUsersModal from "../../components/AddUsersModal.jsx";
+import UserRowActions from "../../components/UserRowActions.jsx";
 import { TableSkeleton } from "../../components/Spinner.jsx";
 
 const ROLES = ["", "ADMIN", "SUBADMIN", "AGENT"];
-
-const formatDate = (value) => (value ? new Date(value).toLocaleDateString() : "Never");
 
 const initialsOf = (name) =>
   (name ?? "?")
@@ -20,28 +20,46 @@ const initialsOf = (name) =>
     .toUpperCase();
 
 export const UsersTab = () => {
+  const { user: currentUser } = useAuth();
+  const currentUserId = currentUser?.id;
   const [rows, setRows] = useState([]);
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [params, setParams] = useState({ q: "", role: "" });
+  // Guards against out-of-order responses: a slow list request that was fired
+  // before a delete/edit must not overwrite fresher state when it lands.
+  const requestSeq = useRef(0);
 
-  const load = useCallback(async (params) => {
+  const load = useCallback(async (query = {}) => {
+    const seq = ++requestSeq.current;
     setLoading(true);
     try {
-      const payload = await auth.listUsers(params);
+      const payload = await auth.listUsers({
+        q: query.q || undefined,
+        role: query.role || undefined,
+      });
+      if (seq !== requestSeq.current) return;
       setRows(payload.data);
       setError(null);
     } catch (err) {
+      if (seq !== requestSeq.current) return;
       setError(err instanceof ApiError ? err.message : "Could not load users.");
     } finally {
-      setLoading(false);
+      if (seq === requestSeq.current) setLoading(false);
     }
   }, []);
 
+  // Remember the last query so row actions can refresh the current view.
+  const reload = useCallback(() => load(params), [load, params]);
+
   // Debounce the search so each keystroke does not hit the API.
   useEffect(() => {
-    const timer = setTimeout(() => load({ q: search.trim(), role: role || undefined }), 300);
+    const next = { q: search.trim(), role };
+    setParams(next);
+    const timer = setTimeout(() => load(next), 300);
     return () => clearTimeout(timer);
   }, [search, role, load]);
 
@@ -53,10 +71,10 @@ export const UsersTab = () => {
             <h2 className="panel__title">Users</h2>
             <p className="panel__desc">Everyone with access to this workspace.</p>
           </div>
-          <Link className="btn btn--primary btn--sm" to="/team">
+          <button type="button" className="btn btn--primary btn--sm" onClick={() => setAdding(true)}>
             <Icon name="plus" size={15} />
             Add user
-          </Link>
+          </button>
         </div>
 
         <div className="toolbar">
@@ -106,14 +124,17 @@ export const UsersTab = () => {
           />
         ) : (
           <div className="table-wrap">
-            <table className="table">
+            <table className="table table--wide">
               <thead>
                 <tr>
                   <th>User</th>
-                  <th>Username</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Employee ID</th>
                   <th>Role</th>
                   <th>Status</th>
-                  <th>Last login</th>
+                  <th>Password</th>
+                  <th aria-label="Actions" />
                 </tr>
               </thead>
               <tbody>
@@ -124,11 +145,15 @@ export const UsersTab = () => {
                         <span className="avatar avatar--sm">{initialsOf(user.fullName)}</span>
                         <span className="cell-user">
                           <span className="cell-user__name">{user.fullName}</span>
-                          <span className="cell-user__mail">{user.email ?? "No email"}</span>
+                          <span className="cell-user__mail">{user.userName}</span>
                         </span>
                       </span>
                     </td>
-                    <td className="table__mono">{user.userName}</td>
+                    <td className="tabular">{user.phone ?? <span className="muted">-</span>}</td>
+                    <td className="cell-clip" title={user.email ?? ""}>
+                      {user.email ?? <span className="muted">-</span>}
+                    </td>
+                    <td className="table__mono">{user.employeeId ?? <span className="muted">-</span>}</td>
                     <td>
                       <span className="badge badge--neutral">{user.role}</span>
                     </td>
@@ -138,7 +163,20 @@ export const UsersTab = () => {
                         {user.Status}
                       </span>
                     </td>
-                    <td className="tabular">{formatDate(user.lastLogin)}</td>
+                    <td>
+                      {user.IsReset ? (
+                        <span className="badge badge--warning" title="Still the password an admin set - this person has not signed in yet">
+                          Temporary
+                        </span>
+                      ) : (
+                        <span className="badge badge--neutral" title="The password has been used at least once">
+                          Set
+                        </span>
+                      )}
+                    </td>
+                    <td className="table__actions">
+                      <UserRowActions user={user} currentUserId={currentUserId} onChanged={reload} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -146,6 +184,12 @@ export const UsersTab = () => {
           </div>
         )}
       </div>
+
+      <AddUsersModal
+        open={adding}
+        onClose={() => setAdding(false)}
+        onCreated={() => load({ q: search.trim(), role: role || undefined })}
+      />
     </div>
   );
 };
