@@ -164,6 +164,24 @@ export const auth = {
   updateUser: (id, patch) => request(`/api/users/${id}`, { method: "PATCH", auth: true, body: patch }),
   changePassword: (id, newPassword) => request(`/api/users/${id}/password`, { method: "POST", auth: true, body: { newPassword } }),
   deleteUser: (id) => request(`/api/users/${id}`, { method: "DELETE", auth: true }),
+
+  // ---- pipelines / stages / tags ----
+  listPipelines: (params) => request(`/api/pipelines${qs(params)}`, { auth: true }),
+  createPipeline: (body) => request("/api/pipelines", { method: "POST", auth: true, body }),
+  updatePipeline: (id, patch) => request(`/api/pipelines/${id}`, { method: "PATCH", auth: true, body: patch }),
+  deletePipeline: (id) => request(`/api/pipelines/${id}`, { method: "DELETE", auth: true }),
+
+  createStage: (pipelineId, body) => request(`/api/pipelines/${pipelineId}/stages`, { method: "POST", auth: true, body }),
+  updateStage: (pipelineId, stageId, patch) =>
+    request(`/api/pipelines/${pipelineId}/stages/${stageId}`, { method: "PATCH", auth: true, body: patch }),
+  deleteStage: (pipelineId, stageId) => request(`/api/pipelines/${pipelineId}/stages/${stageId}`, { method: "DELETE", auth: true }),
+
+  createTag: (pipelineId, stageId, body) =>
+    request(`/api/pipelines/${pipelineId}/stages/${stageId}/tags`, { method: "POST", auth: true, body }),
+  updateTag: (pipelineId, stageId, tagId, patch) =>
+    request(`/api/pipelines/${pipelineId}/stages/${stageId}/tags/${tagId}`, { method: "PATCH", auth: true, body: patch }),
+  deleteTag: (pipelineId, stageId, tagId) =>
+    request(`/api/pipelines/${pipelineId}/stages/${stageId}/tags/${tagId}`, { method: "DELETE", auth: true }),
 };
 
 export default auth;

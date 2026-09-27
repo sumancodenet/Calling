@@ -1793,6 +1793,238 @@ code {
   }
 }
 
+/* ---------- pipeline builder ---------- */
+.pipeline {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  gap: var(--sp-4);
+  align-items: start;
+}
+
+.skeleton-panel {
+  grid-column: 1 / -1;
+  min-height: 320px;
+}
+
+.pipeline__list {
+  padding: var(--sp-2);
+  position: sticky;
+  top: 76px;
+}
+
+.pipeline__list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-2) var(--sp-2) var(--sp-3);
+}
+
+.pipeline__list-title {
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-weight: 620;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pipeline__list-empty {
+  padding: var(--sp-6) var(--sp-3);
+  text-align: center;
+  font-size: var(--fs-sm);
+}
+
+.pipeline__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  padding: 10px var(--sp-3);
+  border-radius: var(--r-md);
+  text-align: left;
+  transition: background var(--ease) 0.15s;
+}
+
+.pipeline__item:hover {
+  background: var(--surface-hover);
+}
+
+.pipeline__item--active {
+  background: var(--accent-soft);
+}
+
+.pipeline__item-name {
+  font-size: var(--fs-sm);
+  font-weight: 580;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pipeline__item--active .pipeline__item-name {
+  color: var(--accent-text);
+}
+
+.pipeline__item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.pipeline__detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+/* stage rows */
+.stages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.stage {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.stage__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stage__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  flex-shrink: 0;
+}
+
+.stage__meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.stage__tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.badge--danger {
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
+.chiptag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-full);
+  background: var(--surface);
+  font-size: var(--fs-xs);
+  font-weight: 550;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.chiptag button {
+  display: grid;
+  place-items: center;
+  color: inherit;
+  opacity: 0.55;
+  transition: opacity var(--ease) 0.15s;
+}
+
+.chiptag button:hover {
+  opacity: 1;
+}
+
+.chiptag--add {
+  border-style: dashed;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.chiptag--add:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.field__hint {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: 520;
+  cursor: pointer;
+}
+
+.checkbox input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+textarea.input {
+  resize: vertical;
+  min-height: 62px;
+  line-height: 1.5;
+}
+
+input[type="color"].input {
+  padding: 3px;
+  height: 40px;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .pipeline {
+    grid-template-columns: 1fr;
+  }
+  .pipeline__list {
+    position: static;
+  }
+  .stage {
+    flex-wrap: wrap;
+  }
+  .stage__tags {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
 /* ---------- horizontal tabs ---------- */
 .tabs {
   display: flex;

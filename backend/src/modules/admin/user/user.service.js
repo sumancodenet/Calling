@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { Op } from "sequelize";
 import { Users, Tenants, RefreshTokens } from "../../../models/index.js";
 import { unprocessable, conflict, badRequest, notFound, forbidden } from "../../../utils/AppError.js";
+import { reviveOrCreate } from "../../../utils/reviveOrCreate.js";
 import { DEFAULT_ROLE } from "./user.validators.js";
 
 const SALT_ROUNDS = 10;
@@ -17,6 +18,10 @@ const trimmed = (value) => (blank(value) ? null : String(value).trim());
  * Duplicate detection runs before the transaction so a clash is reported as a
  * validation error naming the offending rows, rather than as an opaque
  * SequelizeUniqueConstraintError.
+ *
+ * paranoid: false, because a soft-deleted user still occupies their username /
+ * phone on the unique index. Those are reported as "previously deleted" and are
+ * revived rather than collided with.
  */
 const findInBatchConflicts = async (tenantId, rows) => {
   const names = rows.map((r) => String(r.userName).trim()).filter(Boolean);
@@ -25,24 +30,36 @@ const findInBatchConflicts = async (tenantId, rows) => {
   const employeeIds = rows.map((r) => trimmed(r.employeeId)).filter(Boolean);
 
   const [byName, byPhone, byEmail, byEmployee] = await Promise.all([
-    Users.findAll({ where: { tenantId, userName: { [Op.in]: names } }, attributes: ["userName"] }),
-    Users.findAll({ where: { tenantId, phone: { [Op.in]: phones } }, attributes: ["phone"] }),
+    Users.findAll({ where: { tenantId, userName: { [Op.in]: names } }, attributes: ["userName", "DeletedAt"], paranoid: false }),
+    Users.findAll({ where: { tenantId, phone: { [Op.in]: phones } }, attributes: ["phone", "DeletedAt"], paranoid: false }),
     emails.length
-      ? Users.findAll({ where: { tenantId, email: { [Op.in]: emails } }, attributes: ["email"] })
+      ? Users.findAll({ where: { tenantId, email: { [Op.in]: emails } }, attributes: ["email", "DeletedAt"], paranoid: false })
       : Promise.resolve([]),
     employeeIds.length
-      ? Users.findAll({ where: { tenantId, employeeId: { [Op.in]: employeeIds } }, attributes: ["employeeId"] })
+      ? Users.findAll({ where: { tenantId, employeeId: { [Op.in]: employeeIds } }, attributes: ["employeeId", "DeletedAt"], paranoid: false })
       : Promise.resolve([]),
   ]);
 
-  const taken = {
-    userName: new Set(byName.map((u) => u.userName)),
-    phone: new Set(byPhone.map((u) => u.phone)),
-    email: new Set(byEmail.map((u) => u.email)),
-    employeeId: new Set(byEmployee.map((u) => u.employeeId)),
+  const active = { userName: new Set(), phone: new Set(), email: new Set(), employeeId: new Set() };
+  const soft = { userName: new Set(), phone: new Set(), email: new Set(), employeeId: new Set() };
+
+  // The column is physically `DeletedAt`, and an attribute fetched through an
+  // alias has no plain property - so read it with .get() rather than row.DeletedAt.
+  const split = (rows, key, live, gone) => {
+    for (const row of rows) {
+      const value = row[key];
+      if (value === null || value === undefined) continue;
+      if (row.get("DeletedAt")) gone.add(value);
+      else live.add(value);
+    }
   };
+  split(byName, "userName", active.userName, soft.userName);
+  split(byPhone, "phone", active.phone, soft.phone);
+  split(byEmail, "email", active.email, soft.email);
+  split(byEmployee, "employeeId", active.employeeId, soft.employeeId);
 
   const errors = [];
+  const revive = { userName: new Set(), phone: new Set(), email: new Set(), employeeId: new Set() };
   const seen = { userName: new Set(), phone: new Set(), email: new Set(), employeeId: new Set() };
 
   rows.forEach((row, index) => {
@@ -53,11 +70,12 @@ const findInBatchConflicts = async (tenantId, rows) => {
 
     const clash = (field, value) => {
       if (!value) return;
-      // Already used earlier in this same batch, not just in the database.
       if (seen[field].has(value)) {
         errors.push({ field: `users.${index}.${field}`, message: `Duplicate ${field} "${value}" in this request` });
-      } else if (taken[field].has(value)) {
+      } else if (active[field].has(value)) {
         errors.push({ field: `users.${index}.${field}`, message: `${field} "${value}" is already in use` });
+      } else if (soft[field].has(value)) {
+        revive[field].add(value);
       }
       seen[field].add(value);
     };
@@ -68,7 +86,7 @@ const findInBatchConflicts = async (tenantId, rows) => {
     clash("employeeId", employeeId);
   });
 
-  return errors;
+  return { errors, revive };
 };
 
 /**
@@ -87,9 +105,9 @@ export const createUsers = async ({ tenantId, userId, users }) => {
     );
   }
 
-  const conflicts = await findInBatchConflicts(tenantId, users);
-  if (conflicts.length > 0) {
-    throw unprocessable(conflicts[0].message, conflicts);
+  const { errors, revive } = await findInBatchConflicts(tenantId, users);
+  if (errors.length > 0) {
+    throw unprocessable(errors[0].message, errors);
   }
 
   // One hash reused across the batch: bcrypt is deliberately slow, and hashing
@@ -100,8 +118,24 @@ export const createUsers = async ({ tenantId, userId, users }) => {
     hashes[password] = await bcrypt.hash(password, SALT_ROUNDS);
   }
 
+  // Map each soft-deleted match back to its row id so it can be revived.
+  // DeletedAt must be selected here too, otherwise row.get("DeletedAt") is
+  // undefined and nothing is recognised as revivable.
+  const revivalIds = {};
+  for (const field of ["userName", "phone", "email", "employeeId"]) {
+    if (revive[field].size === 0) continue;
+    const rows = await Users.findAll({
+      where: { tenantId, [field]: { [Op.in]: [...revive[field]] } },
+      attributes: ["id", field, "DeletedAt"],
+      paranoid: false,
+    });
+    for (const row of rows) {
+      if (row.get("DeletedAt")) revivalIds[row[field]] = row.id;
+    }
+  }
+
   const created = await Users.sequelize.transaction(async (t) => {
-    const rows = users.map((u) => ({
+    const prepared = users.map((u) => ({
       tenantId,
       userId: newUserId(),
       userName: String(u.userName).trim(),
@@ -117,7 +151,47 @@ export const createUsers = async ({ tenantId, userId, users }) => {
       CreatedBy: userId,
     }));
 
-    return Users.bulkCreate(rows, { transaction: t });
+    // Rows matching a soft-deleted record must be UPDATED, not inserted: the
+    // unique index still holds their key, so an insert would abort the whole
+    // transaction. The revived row keeps its original public userId.
+    const results = new Array(prepared.length);
+    const toInsert = [];
+
+    for (const [index, values] of prepared.entries()) {
+      const existingId =
+        revivalIds[values.userName] ??
+        revivalIds[values.phone] ??
+        revivalIds[values.email] ??
+        revivalIds[values.employeeId];
+
+      if (existingId) {
+        // Model.update() would add the paranoid `deletedAt IS NULL` filter and
+        // match nothing, so the row is restored on the instance instead. The
+        // public userId is intentionally preserved - this is the same user.
+        const { userId: _keep, ...rest } = values;
+        const { instance } = await reviveOrCreate(Users, {
+          where: { id: existingId },
+          defaults: rest,
+          transaction: t,
+        });
+        await instance.update({ lastLogin: null, failedLoginAttempts: 0, lockedUntil: null }, { transaction: t });
+        results[index] = instance;
+      } else {
+        toInsert.push({ values, index });
+      }
+    }
+
+    if (toInsert.length > 0) {
+      const inserted = await Users.bulkCreate(
+        toInsert.map((entry) => entry.values),
+        { transaction: t },
+      );
+      inserted.forEach((row, i) => {
+        results[toInsert[i].index] = row;
+      });
+    }
+
+    return results.filter(Boolean);
   });
 
   return created.map((u) => ({
