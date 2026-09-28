@@ -199,6 +199,48 @@ export const auth = {
   deleteUpload: (id, uploadId) => request(`/api/campaigns/${id}/uploads/${uploadId}`, { method: "DELETE", auth: true }),
   uploadDownloadUrl: (id, uploadId) => request(`/api/campaigns/${id}/uploads/${uploadId}/download`, { auth: true }),
 
+  // Both send the file as multipart. Preview writes nothing; it just reports the
+  // sheet's columns so the admin can map them.
+  previewCampaignLeads: async (id, formData) => {
+    if (!accessToken) throw new ApiError(401, "UNAUTHENTICATED", "Your session has ended. Please sign in again.");
+    let res;
+    try {
+      res = await fetch(`${BASE_URL}/api/campaigns/${id}/leads/preview`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        credentials: "include",
+        body: formData,
+      });
+    } catch {
+      throw new ApiError(0, "NETWORK_ERROR", "Cannot reach the server. Check your connection.");
+    }
+    const payload = await readBody(res);
+    if (!res.ok) {
+      throw new ApiError(res.status, payload?.code ?? "ERROR", payload?.message ?? "Could not read that file", payload?.data);
+    }
+    return payload;
+  },
+
+  uploadCampaignLeadsMapped: async (id, formData) => {
+    if (!accessToken) throw new ApiError(401, "UNAUTHENTICATED", "Your session has ended. Please sign in again.");
+    let res;
+    try {
+      res = await fetch(`${BASE_URL}/api/campaigns/${id}/leads/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        credentials: "include",
+        body: formData,
+      });
+    } catch {
+      throw new ApiError(0, "NETWORK_ERROR", "Cannot reach the server. Check your connection.");
+    }
+    const payload = await readBody(res);
+    if (!res.ok) {
+      throw new ApiError(res.status, payload?.code ?? "ERROR", payload?.message ?? "The upload failed", payload?.data);
+    }
+    return payload;
+  },
+
   // Multipart: sent straight through fetch rather than the JSON `send` helper,
   // so the browser sets the multipart boundary itself.
   uploadCampaignLeads: async (id, formData) => {

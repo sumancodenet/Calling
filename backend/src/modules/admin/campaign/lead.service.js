@@ -15,11 +15,22 @@ import { LEAD_DISTRIBUTIONS, DUPLICATE_SCOPES, DUPLICATE_ACTIONS } from "./campa
 export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
 export const MAX_ROWS = 5000;
 
-/** Header names people actually type, mapped to our fields. */
+/** The lead fields an admin can map a spreadsheet column onto. */
+export const MAPPABLE_FIELDS = Object.freeze([
+  { field: "name", label: "Name", required: false, hint: "Falls back to phone or email when empty" },
+  { field: "phone", label: "Phone", required: false, hint: "Primary duplicate key" },
+  { field: "email", label: "Email", required: false, hint: "Used for duplicate checks when phone is absent" },
+  { field: "city", label: "City", required: false, hint: "Optional" },
+]);
+
+const MAPPABLE = new Set(MAPPABLE_FIELDS.map((f) => f.field));
+
+/** Header names people actually type, used to pre-fill the mapping. */
 const COLUMN_ALIASES = {
   name: ["name", "fullname", "full name", "lead", "lead name", "contact", "contact name", "customer"],
   phone: ["phone", "phoneno", "phone no", "phone number", "mobile", "mobile no", "contact number", "number"],
   email: ["email", "e-mail", "emailaddress", "email address", "mail"],
+  city: ["city", "town", "location", "district"],
 };
 
 const norm = (header) => String(header ?? "").trim().toLowerCase().replace(/[_.\-]+/g, " ").replace(/\s+/g, " ");
@@ -27,6 +38,39 @@ const norm = (header) => String(header ?? "").trim().toLowerCase().replace(/[_.\
 const findColumn = (headers, field) => {
   const aliases = COLUMN_ALIASES[field];
   return headers.findIndex((h) => aliases.includes(norm(h)));
+};
+
+/**
+ * Works out which spreadsheet column feeds which lead field.
+ *
+ * The admin's explicit choice always wins. Where they left something unmapped
+ * we fall back to the alias guess, so a simple CSV still imports with no
+ * mapping step at all.
+ */
+const resolveMapping = (headers, mapping) => {
+  const resolved = {};
+  const headerSet = new Set(headers.map((h) => String(h).trim()));
+
+  for (const { field } of MAPPABLE_FIELDS) {
+    const chosen = mapping?.[field];
+    // A mapping value must be a header that actually exists in the file,
+    // otherwise a caller could name any column it liked.
+    if (chosen && headerSet.has(String(chosen).trim())) {
+      resolved[field] = headers.indexOf(String(chosen).trim());
+    } else if (chosen) {
+      throw badRequest(`"${chosen}" is not a column in this file`);
+    } else {
+      resolved[field] = findColumn(headers, field);
+    }
+  }
+
+  if (resolved.name === -1 && resolved.phone === -1 && resolved.email === -1) {
+    throw badRequest(
+      `Map at least one of ${MAPPABLE_FIELDS.filter((f) => f.field !== "city").map((f) => f.label).join(", ")} to a column`,
+    );
+  }
+
+  return resolved;
 };
 
 /** Strips a leading + and separators so the same number matches across formats. */
@@ -58,6 +102,7 @@ const rowToCandidate = (row, indexes) => {
 
   const phone = normalisePhone(pick("phone"));
   const email = normaliseEmail(pick("email"));
+  const city = String(pick("city") ?? "").trim() || null;
   const name = String(pick("name") ?? "").trim() || phone || email;
 
   if (!name) return null;
@@ -65,7 +110,7 @@ const rowToCandidate = (row, indexes) => {
   const dedupeKey = buildDedupeKey(phone, email);
   // Nothing to dedupe on and nothing to call: keep it only if we have a name,
   // but it can never be detected as a duplicate later.
-  return { name, phone, email, dedupeKey };
+  return { name, phone, email, city, dedupeKey };
 };
 
 const parseCsvBuffer = (buffer) => {
@@ -93,7 +138,7 @@ const parseExcelBuffer = async (buffer) => {
   return rows;
 };
 
-export const parseUpload = async ({ buffer, mimetype, originalname }) => {
+export const parseUpload = async ({ buffer, mimetype, originalname, mapping, previewOnly = false }) => {
   const ext = String(originalname ?? "").toLowerCase().split(".").pop();
   const isCsv = ext === "csv" || mimetype?.includes("csv") || mimetype === "text/plain";
   const isExcel = ["xlsx", "xls"].includes(ext) || mimetype?.includes("spreadsheet") || mimetype?.includes("excel");
@@ -108,22 +153,33 @@ export const parseUpload = async ({ buffer, mimetype, originalname }) => {
     throw badRequest(`Too many rows. The limit is ${MAX_ROWS} per upload`);
   }
 
-  const headers = rows[0];
-  const indexes = {
-    name: findColumn(headers, "name"),
-    phone: findColumn(headers, "phone"),
-    email: findColumn(headers, "email"),
-  };
+  const headers = rows[0].map((h, i) => String(h ?? "").trim() || `Column ${i + 1}`);
+  const body = rows.slice(1);
+  const indexes = resolveMapping(headers, mapping);
 
-  if (indexes.name === -1 && indexes.phone === -1 && indexes.email === -1) {
-    throw badRequest('Could not find a name, phone or email column. Expected headers like "Name", "Phone" or "Email".');
+  // Preview stops here: the admin has not chosen a mapping yet, so nothing is
+  // validated beyond "is this a file we can read at all".
+  if (previewOnly) {
+    return {
+      source: isCsv ? LEAD_SOURCES.CSV : LEAD_SOURCES.EXCEL,
+      headers,
+      mapping: MAPPABLE_FIELDS.map(({ field, label, hint }) => ({
+        field,
+        label,
+        hint,
+        // Pre-selected suggestion so the admin confirms rather than starts blind.
+        suggested: indexes[field] === -1 ? null : headers[indexes[field]],
+      })),
+      sampleRows: body.slice(0, 5).map((row) => headers.map((_, i) => String(row?.[i] ?? ""))),
+      totalRows: body.length,
+    };
   }
 
-  const known = new Set([indexes.name, indexes.phone, indexes.email].filter((i) => i !== -1));
   const candidates = [];
   let skippedBlank = 0;
+  const mappedIndexes = new Set(Object.values(indexes).filter((i) => i !== -1));
 
-  for (const row of rows.slice(1)) {
+  for (const row of body) {
     const candidate = rowToCandidate(row, indexes);
     if (!candidate) {
       skippedBlank++;
@@ -132,7 +188,7 @@ export const parseUpload = async ({ buffer, mimetype, originalname }) => {
     // Anything the sheet had that we have no column for is kept, not dropped.
     const extra = {};
     row.forEach((value, i) => {
-      if (known.has(i)) return;
+      if (mappedIndexes.has(i)) return;
       const header = String(headers[i] ?? "").trim();
       if (!header || value === null || value === undefined || String(value).trim() === "") return;
       extra[header] = typeof value === "object" ? String(value) : value;
@@ -149,7 +205,7 @@ export const parseUpload = async ({ buffer, mimetype, originalname }) => {
     source: isCsv ? LEAD_SOURCES.CSV : LEAD_SOURCES.EXCEL,
     candidates,
     skippedBlank,
-    headers: headers.map((h) => String(h ?? "").trim()),
+    headers,
   };
 };
 
@@ -245,11 +301,11 @@ const assignLeads = ({ rows, campaign, agents, cursor }) => {
   return { rows, cursor: next };
 };
 
-export const uploadLeads = async ({ tenantId, campaignId, file, uploadedByName }) => {
+export const uploadLeads = async ({ tenantId, campaignId, file, uploadedByName, mapping }) => {
   const campaign = await Campaigns.findOne({ where: { id: campaignId, tenantId } });
   if (!campaign) throw notFound("Campaign not found");
 
-  const parsed = await parseUpload(file);
+  const parsed = await parseUpload({ ...file, mapping });
   const { toCreate, toMerge, ignored, merged, allowed } = await resolveDuplicates({
     tenantId,
     campaign,
@@ -271,6 +327,7 @@ export const uploadLeads = async ({ tenantId, campaignId, file, uploadedByName }
     name: candidate.name,
     phone: candidate.phone,
     email: candidate.email,
+    city: candidate.city,
     dedupeKey: candidate.dedupeKey ?? `n:${campaign.id}:${Math.random().toString(36).slice(2, 12)}`,
     status: LEAD_STATUS.NEW,
     assignedTo: null,
@@ -337,6 +394,7 @@ export const uploadLeads = async ({ tenantId, campaignId, file, uploadedByName }
             name: item.candidate.name,
             phone: item.candidate.phone ?? undefined,
             email: item.candidate.email ?? undefined,
+            city: item.candidate.city ?? undefined,
             extra: item.candidate.extra ?? undefined,
             uploadId: upload.id,
           },
@@ -413,6 +471,7 @@ export const listUploadLeads = async ({ tenantId, campaignId, uploadId, page = 1
       name: row.name,
       phone: row.phone,
       email: row.email,
+      city: row.city,
       status: row.status,
       assignedTo: row.assignee ? { id: row.assignee.id, fullName: row.assignee.fullName } : null,
     })),
@@ -463,6 +522,12 @@ export const deleteUpload = async ({ tenantId, campaignId, uploadId }) => {
 };
 
 /**
+ * Reads a file and reports its columns plus a few sample rows, so the admin can
+ * decide how to map them. Nothing is written to the database.
+ */
+export const previewUpload = async ({ file }) => parseUpload({ ...file, previewOnly: true });
+
+/**
  * A short-lived presigned URL for the original spreadsheet.
  *
  * The URL is minted on demand rather than stored, so it expires on its own and
@@ -502,6 +567,7 @@ export const listLeads = async ({ tenantId, campaignId, page = 1, limit = 25 }) 
       name: row.name,
       phone: row.phone,
       email: row.email,
+      city: row.city,
       status: row.status,
       source: row.source,
       duplicateOf: row.duplicateOf,

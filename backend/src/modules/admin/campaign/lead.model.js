@@ -68,6 +68,10 @@ const CampaignLeads = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    city: {
+      type: DataTypes.STRING(120),
+      allowNull: true,
+    },
     // Stable identity for duplicate detection - phone if present, else email.
     dedupeKey: {
       type: DataTypes.STRING(160),

@@ -15,6 +15,7 @@ import {
   listUploadLeadsController,
   deleteUploadController,
   downloadUploadController,
+  previewController,
 } from "./lead.controller.js";
 import { handleUploadError } from "../../../middleware/upload.js";
 import { createCampaignRules } from "./campaign.validators.js";
@@ -73,6 +74,17 @@ router.get(
   validate,
   listLeadsController,
 );
+router.post(
+  "/:id/leads/preview",
+  authenticate,
+  canManage,
+  idParam,
+  campaignUpload,
+  handleUploadError,
+  validate,
+  previewController,
+);
+
 router.post(
   "/:id/leads/upload",
   authenticate,

@@ -34,6 +34,101 @@ export const LeadUploadPage = () => {
   const [error, setError] = useState(null);
   const inputRef = useRef(null);
 
+  // Mapping step: what the sheet actually contains, and what the admin picked.
+  const [preview, setPreview] = useState(null);
+  const [mapping, setMapping] = useState({});
+  const [previewing, setPreviewing] = useState(false);
+
+  const reset = useCallback(() => {
+    setFile(null);
+    setPreview(null);
+    setMapping({});
+    setError(null);
+    setUploading(false);
+    setPreviewing(false);
+    if (inputRef.current) inputRef.current.value = "";
+  }, []);
+
+  useEffect(() => {
+    if (open) reset();
+  }, [open, reset]);
+
+  const pick = useCallback(
+    (next) => {
+      setError(null);
+      setPreview(null);
+      setMapping({});
+      if (!next) return;
+      const ext = next.name.toLowerCase().split(".").pop();
+      if (!["csv", "xls", "xlsx"].includes(ext)) {
+        setError("Only .csv, .xls and .xlsx files are accepted");
+        return;
+      }
+      if (next.size > MAX_BYTES) {
+        setError(`That file is ${formatBytes(next.size)}. The limit is ${formatBytes(MAX_BYTES)}.`);
+        return;
+      }
+      setFile(next);
+
+      // Read the sheet so the admin can map its columns. Nothing is imported yet.
+      setPreviewing(true);
+      const form = new FormData();
+      form.append("file", next);
+      auth
+        .previewCampaignLeads(campaignId, form)
+        .then((payload) => {
+          setPreview(payload.data);
+          // Pre-select the server's suggestion so this is a confirmation, not a
+          // blank form the admin has to fill from scratch.
+          setMapping(
+            Object.fromEntries(payload.data.mapping.map((m) => [m.field, m.suggested ?? ""])),
+          );
+        })
+        .catch((err) => {
+          setFile(null);
+          if (inputRef.current) inputRef.current.value = "";
+          setError(err instanceof ApiError ? err.message : "Could not read that file.");
+        })
+        .finally(() => setPreviewing(false));
+    },
+    [campaignId],
+  );
+
+  const clearFile = () => {
+    reset();
+  };
+
+  const upload = async (event) => {
+    event.preventDefault();
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      // Blank fields are sent as empty strings and the server treats them as
+      // "unmapped", falling back to its own suggestion for that field.
+      for (const [field, column] of Object.entries(mapping)) {
+        form.append(field, column ?? "");
+      }
+
+      const payload = await auth.uploadCampaignLeadsMapped(campaignId, form);
+      setFile(null);
+      toast.success("Leads imported", `${payload.data.created} new lead(s) added`);
+
+      // Straight to the campaign that just received the leads. Reached from
+      // either entry point - right after creating a campaign, or from an
+      // existing campaign - so the destination is the same both times.
+      // Replaces rather than pushes, so Back does not land on this page again.
+      navigate(`/campaigns/${campaignId}`, { replace: true });
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "The upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   useEffect(() => {
     let active = true;
     setLoading(true);
@@ -56,51 +151,10 @@ export const LeadUploadPage = () => {
     };
   }, [campaignId]);
 
-  const pick = useCallback((next) => {
-    setError(null);
-    if (!next) return;
-    const ext = next.name.toLowerCase().split(".").pop();
-    if (!["csv", "xls", "xlsx"].includes(ext)) {
-      setError("Only .csv, .xls and .xlsx files are accepted");
-      return;
-    }
-    if (next.size > MAX_BYTES) {
-      setError(`That file is ${formatBytes(next.size)}. The limit is ${formatBytes(MAX_BYTES)}.`);
-      return;
-    }
-    setFile(next);
-  }, []);
-
   const onDrop = (event) => {
     event.preventDefault();
     setDragging(false);
     pick(event.dataTransfer.files?.[0] ?? null);
-  };
-
-  const upload = async (event) => {
-    event.preventDefault();
-    if (!file) return;
-
-    setUploading(true);
-    setError(null);
-    try {
-      const form = new FormData();
-      form.append("file", file);
-      const payload = await auth.uploadCampaignLeads(campaignId, form);
-      setFile(null);
-      if (inputRef.current) inputRef.current.value = "";
-      toast.success("Leads imported", `${payload.data.created} new lead(s) added`);
-
-      // Straight to the campaign that just received the leads. Reached from
-      // either entry point - right after creating a campaign, or from an
-      // existing campaign - so the destination is the same both times.
-      // Replaces rather than pushes, so Back does not land on this page again.
-      navigate(`/campaigns/${campaignId}`, { replace: true });
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "The upload failed. Please try again.");
-    } finally {
-      setUploading(false);
-    }
   };
 
   if (loading) return <Spinner label="Loading campaign" />;
@@ -201,18 +255,84 @@ export const LeadUploadPage = () => {
 
               {error ? <Alert tone="error" onDismiss={() => setError(null)}>{error}</Alert> : null}
 
+              {/* ---- mapping step ---- */}
+              {previewing ? <Spinner label="Reading columns" /> : null}
+
+              {/* Guarded on `file` as well as `preview`: clearing the file must
+                  never leave the mapping block mounted with a null file. */}
+              {preview && file ? (
+                <div className="map">
+                  <div className="map__head">
+                    <div>
+                      <h3 className="map__title">Map your columns</h3>
+                      <p className="map__sub">
+                        Tell us which column in <strong>{file?.name}</strong> is which field. We guessed what we
+                        could — change anything that looks wrong.
+                      </p>
+                    </div>
+                    <span className="badge badge--neutral">{preview.totalRows} rows</span>
+                  </div>
+
+                  <div className="map__fields">
+                    {preview.mapping.map((m) => (
+                      <div className="field" key={m.field}>
+                        <label htmlFor={`map-${m.field}`}>{m.label}</label>
+                        <select
+                          id={`map-${m.field}`}
+                          className="input"
+                          value={mapping[m.field] ?? ""}
+                          onChange={(e) => setMapping((prev) => ({ ...prev, [m.field]: e.target.value }))}
+                          disabled={uploading}
+                        >
+                          <option value="">Do not import</option>
+                          {preview.headers.map((header) => (
+                            <option key={header} value={header}>
+                              {header}
+                            </option>
+                          ))}
+                        </select>
+                        {m.hint ? <span className="field__hint">{m.hint}</span> : null}
+                      </div>
+                    ))}
+                  </div>
+
+                  <details className="map__sample">
+                    <summary>Preview first {preview.sampleRows.length} rows</summary>
+                    <div className="table-wrap map__table">
+                      <table className="table">
+                        <thead>
+                          <tr>
+                            {preview.headers.map((header) => (
+                              <th key={header}>{header}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {preview.sampleRows.map((row, i) => (
+                            <tr key={i}>
+                              {row.map((cell, j) => (
+                                <td key={j} className="table__truncate">
+                                  {cell}
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
+                </div>
+              ) : null}
+
               <div className="row upload__actions">
-                <button type="submit" className="btn btn--primary" disabled={!file || uploading}>
-                  {uploading ? "Uploading..." : "Upload leads"}
+                <button type="submit" className="btn btn--primary" disabled={!file || uploading || previewing}>
+                  {uploading ? "Importing..." : previewing ? "Reading file..." : "Proceed with import"}
                 </button>
                 {file ? (
                   <button
                     type="button"
                     className="btn btn--ghost"
-                    onClick={() => {
-                      setFile(null);
-                      if (inputRef.current) inputRef.current.value = "";
-                    }}
+                    onClick={clearFile}
                     disabled={uploading}
                   >
                     Clear
@@ -226,25 +346,28 @@ export const LeadUploadPage = () => {
             <section className="panel">
               <div className="panel__head">
                 <div>
-                  <h2 className="panel__title">How this sheet is read</h2>
+                  <h2 className="panel__title">About the import</h2>
                 </div>
               </div>
               <dl className="details">
                 <div className="details__row">
-                  <dt>Name</dt>
-                  <dd>Name, Full Name, Contact, Lead</dd>
+                  <dt>Mapped fields</dt>
+                  <dd>Name, Phone, Email, City</dd>
                 </div>
                 <div className="details__row">
-                  <dt>Phone</dt>
-                  <dd>Phone, Mobile, Mobile No, Contact Number</dd>
-                </div>
-                <div className="details__row">
-                  <dt>Email</dt>
-                  <dd>Email, E-Mail</dd>
-                </div>
-                <div className="details__row">
-                  <dt>Other columns</dt>
+                  <dt>Columns you skip</dt>
                   <dd>Kept on the lead as extra</dd>
+                </div>
+                <div className="details__row">
+                  <dt>Duplicates</dt>
+                  <dd>
+                    {campaign?.duplicateScope?.toLowerCase()} scope,{" "}
+                    {campaign?.duplicateAction?.toLowerCase()} when found
+                  </dd>
+                </div>
+                <div className="details__row">
+                  <dt>Leads land in</dt>
+                  <dd>The first stage of the pipeline</dd>
                 </div>
               </dl>
               <div className="notice" style={{ marginTop: "var(--sp-4)" }}>

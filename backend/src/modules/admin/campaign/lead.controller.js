@@ -2,12 +2,18 @@ import { campaignUpload } from "../../../middleware/upload.js";
 import { sendSuccess } from "../../../utils/response.js";
 import { asyncHandler } from "../../../utils/asyncHandler.js";
 import { badRequest } from "../../../utils/AppError.js";
-import { uploadLeads, listLeads, listUploadLeads, deleteUpload, getUploadDownloadUrl, MAX_UPLOAD_BYTES } from "./lead.service.js";
+import { uploadLeads, listLeads, listUploadLeads, deleteUpload, getUploadDownloadUrl, previewUpload, MAX_UPLOAD_BYTES } from "./lead.service.js";
 import { getCampaignAnalytics } from "./analytics.service.js";
 
 export const analyticsController = asyncHandler(async (req, res) => {
   const data = await getCampaignAnalytics({ tenantId: req.tenantId, campaignId: Number(req.params.id) });
   return sendSuccess(res, { data });
+});
+
+export const previewController = asyncHandler(async (req, res) => {
+  if (!req.file) throw badRequest("Choose a .csv, .xls or .xlsx file to preview");
+  const data = await previewUpload({ file: req.file });
+  return sendSuccess(res, { message: "File ready to map", data });
 });
 
 export const uploadLeadsController = asyncHandler(async (req, res) => {
@@ -18,6 +24,11 @@ export const uploadLeadsController = asyncHandler(async (req, res) => {
     campaignId: Number(req.params.id),
     file: req.file,
     uploadedByName: req.user?.fullName ?? null,
+    // Multipart text fields arrive as strings; an absent field stays undefined so
+    // the parser falls back to its own suggestion rather than being told "none".
+    mapping: Object.fromEntries(
+      Object.entries(req.body ?? {}).filter(([, value]) => value !== "" && value !== undefined),
+    ),
   });
 
   return sendSuccess(res, { message: "Leads imported", data: result });
