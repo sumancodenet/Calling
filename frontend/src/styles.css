@@ -31,65 +31,89 @@
   --fs-2xl: 27px;
   --fs-3xl: 34px;
 
-  --brand-50: #eef1ff;
-  --brand-100: #e0e5ff;
-  --brand-200: #c6cfff;
-  --brand-300: #a3adff;
-  --brand-400: #8185fb;
-  --brand-500: #6366f1;
-  --brand-600: #5457e5;
-  --brand-700: #4345c4;
-  --brand-800: #373a9e;
+  --brand-50: #f2f0ff;
+  --brand-100: #e7e2ff;
+  --brand-200: #d0c6ff;
+  --brand-300: #b19cff;
+  --brand-400: #8f6bff;
+  --brand-500: #7c3aed;
+  --brand-600: #6d28d9;
+  --brand-700: #5b21b6;
+  --brand-800: #4c1d95;
 
-  /* Interactive gradient: restrained enough for B2B. */
-  --grad-brand: linear-gradient(135deg, #5b5ef0 0%, #7a5bf0 55%, #8b4ff0 100%);
-  /* Decorative gradient: used for accents, never for large interactive fills. */
-  --grad-accent: linear-gradient(135deg, #6366f1 0%, #a855f7 55%, #e879f9 100%);
-  --grad-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0) 100%);
+  /* Secondary accent, used for highlights and gradients. */
+  --violet-400: #c026d3;
+  --violet-500: #a21caf;
+  --cyan-400: #22d3ee;
+  --cyan-500: #06b6d4;
+  --amber-400: #fbbf24;
+  --pink-400: #f472b6;
 
-  --bg: #f7f8fc;
+  /* Interactive gradient: the primary brand action colour. */
+  --grad-brand: linear-gradient(135deg, #7c3aed 0%, #9333ea 45%, #c026d3 100%);
+  /* Decorative gradient: accents, progress and highlights, never button fills. */
+  --grad-accent: linear-gradient(135deg, #7c3aed 0%, #c026d3 45%, #f472b6 100%);
+  /* Cool gradient for informational surfaces. */
+  --grad-cool: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  --grad-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 100%);
+
+  --bg: #f6f4ff;
   --bg-elevated: #ffffff;
   --surface: #ffffff;
-  --surface-2: #fbfcfe;
-  --surface-hover: #f4f6fb;
+  --surface-2: #fbfaff;
+  --surface-hover: #f4f1ff;
 
-  --border: #e5e8f0;
-  --border-strong: #d3d8e6;
-  --border-subtle: #eef0f6;
+  --border: #e7e2f7;
+  --border-strong: #d4ccf0;
+  --border-subtle: #f1eefe;
 
-  --text: #0d1020;
-  --text-secondary: #4a5169;
-  --text-muted: #79809a;
+  --text: #14091f;
+  --text-secondary: #4b3f66;
+  --text-muted: #7b6f9c;
   --text-inverse: #ffffff;
 
   --accent: var(--brand-600);
   --accent-soft: var(--brand-50);
   --accent-text: var(--brand-700);
 
-  --success: #05945a;
-  --success-soft: #e9f9f0;
-  --success-border: #a7e8c6;
+  --success: #059669;
+  --success-soft: #ecfdf5;
+  --success-border: #86efac;
 
-  --danger: #d92d20;
-  --danger-hover: #b42318;
-  --danger-soft: #fdf3f2;
-  --danger-border: #f7c9c4;
+  --danger: #e11d48;
+  --danger-hover: #be123c;
+  --danger-soft: #fff1f2;
+  --danger-border: #fda4af;
 
-  --warning: #b54708;
-  --warning-soft: #fffaeb;
-  --warning-border: #fde9b0;
+  --warning: #d97706;
+  --warning-soft: #fffbeb;
+  --warning-border: #fcd34d;
 
-  --shadow-xs: 0 1px 2px rgba(13, 16, 32, 0.04);
-  --shadow-sm: 0 1px 2px rgba(13, 16, 32, 0.05), 0 2px 6px rgba(13, 16, 32, 0.04);
-  --shadow-md: 0 2px 4px rgba(13, 16, 32, 0.04), 0 8px 20px rgba(13, 16, 32, 0.07);
-  --shadow-lg: 0 4px 8px rgba(13, 16, 32, 0.04), 0 20px 44px rgba(13, 16, 32, 0.1);
-  --shadow-brand: 0 2px 6px rgba(99, 102, 241, 0.28), 0 10px 26px rgba(99, 102, 241, 0.22);
+  --info: var(--cyan-600, #0891b2);
+  --info-soft: #ecfeff;
+  --info-border: #67e8f9;
 
-  --ring: 0 0 0 3px rgba(99, 102, 241, 0.16);
-  --ring-danger: 0 0 0 3px rgba(217, 45, 32, 0.13);
+  /* Shadows are tinted rather than neutral, which is what makes the surfaces
+     feel lit instead of flat. */
+  --shadow-xs: 0 1px 2px rgba(76, 29, 149, 0.06);
+  --shadow-sm: 0 1px 2px rgba(76, 29, 149, 0.06), 0 2px 8px rgba(124, 58, 237, 0.08);
+  --shadow-md: 0 2px 4px rgba(76, 29, 149, 0.06), 0 10px 24px rgba(124, 58, 237, 0.12);
+  --shadow-lg: 0 4px 8px rgba(76, 29, 149, 0.06), 0 22px 48px rgba(124, 58, 237, 0.16);
+  --shadow-brand: 0 2px 8px rgba(124, 58, 237, 0.3), 0 12px 28px rgba(192, 38, 211, 0.24);
+
+  --ring: 0 0 0 3px rgba(124, 58, 237, 0.2);
+  --ring-danger: 0 0 0 3px rgba(225, 29, 72, 0.18);
+
+  /* Motion. Every duration/easing in the app reads from these so the whole UI
+     moves at one consistent tempo. */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --dur-slower: 480ms;
 
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   --sidebar-w: 260px;
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -99,43 +123,52 @@
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #0a0b12;
-  --bg-elevated: #12141d;
-  --surface: #12141d;
-  --surface-2: #171a25;
-  --surface-hover: #1c1f2b;
+  --bg: #0b0618;
+  --bg-elevated: #150d28;
+  --surface: #150d28;
+  --surface-2: #1c1233;
+  --surface-hover: #241741;
 
-  --border: #232634;
-  --border-strong: #333748;
-  --border-subtle: #1b1e29;
+  --border: #2c1c4d;
+  --border-strong: #3d2a66;
+  --border-subtle: #20143a;
 
-  --text: #eef0f7;
-  --text-secondary: #a8aec4;
-  --text-muted: #7b819b;
-  --text-inverse: #0a0b12;
+  --text: #f4efff;
+  --text-secondary: #c3b5e6;
+  --text-muted: #8f80b8;
+  --text-inverse: #14091f;
 
   --accent: var(--brand-400);
-  --accent-soft: rgba(99, 102, 241, 0.14);
+  --accent-soft: rgba(143, 107, 255, 0.16);
   --accent-text: var(--brand-300);
 
-  --success: #32d583;
-  --success-soft: rgba(5, 149, 90, 0.14);
-  --success-border: rgba(50, 213, 131, 0.28);
+  --success: #34d399;
+  --success-soft: rgba(5, 150, 105, 0.16);
+  --success-border: rgba(52, 211, 153, 0.32);
 
-  --danger: #f97066;
-  --danger-hover: #fda29b;
-  --danger-soft: rgba(217, 45, 32, 0.14);
-  --danger-border: rgba(249, 112, 102, 0.3);
+  --danger: #fb7185;
+  --danger-hover: #fda4af;
+  --danger-soft: rgba(225, 29, 72, 0.16);
+  --danger-border: rgba(251, 113, 133, 0.34);
 
-  --warning: #fdb022;
-  --warning-soft: rgba(181, 71, 8, 0.16);
-  --warning-border: rgba(253, 176, 34, 0.3);
+  --warning: #fbbf24;
+  --warning-soft: rgba(217, 119, 6, 0.18);
+  --warning-border: rgba(251, 191, 36, 0.34);
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.3), 0 20px 44px rgba(0, 0, 0, 0.5);
-  --shadow-brand: 0 2px 6px rgba(99, 102, 241, 0.35), 0 10px 26px rgba(99, 102, 241, 0.25);
+  --info: #22d3ee;
+  --info-soft: rgba(6, 182, 212, 0.16);
+  --info-border: rgba(34, 211, 238, 0.34);
+
+  /* In dark mode the glow has to come from the shadow itself, since there is no
+     light source behind the surface to catch. */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(76, 29, 149, 0.4);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.4), 0 12px 28px rgba(76, 29, 149, 0.45);
+  --shadow-lg: 0 4px 10px rgba(0, 0, 0, 0.45), 0 26px 56px rgba(76, 29, 149, 0.5);
+  --shadow-brand: 0 2px 10px rgba(124, 58, 237, 0.45), 0 14px 32px rgba(192, 38, 211, 0.32);
+
+  --ring: 0 0 0 3px rgba(143, 107, 255, 0.28);
+  --ring-danger: 0 0 0 3px rgba(251, 113, 133, 0.24);
 }
 
 /* ---------- reset ---------- */
@@ -361,7 +394,9 @@ code {
   color: var(--text-secondary);
   display: flex;
   align-items: center;
-  gap: var(--sp-2);
+  /* Tight: the required asterisk is part of the word, not a separate word. The
+     previous 8px gap plus field__required's 2px margin left it floating. */
+  gap: 3px;
 }
 
 .field__optional {
@@ -760,6 +795,10 @@ code {
   gap: 2px;
   flex: 1;
   overflow-y: auto;
+  /* overflow-y: auto alone makes the browser compute overflow-x as auto too
+     (one non-visible axis forces the other), which let any sideways overflow
+     raise a horizontal scrollbar inside the sidebar. */
+  overflow-x: hidden;
 }
 
 .nav--footer {
@@ -825,6 +864,164 @@ code {
   color: var(--text-muted);
 }
 
+/* Pipelines: a collapsible section whose children are one link per pipeline. */
+.nav__chevron {
+  display: flex;
+  margin-left: auto;
+  transition: transform var(--ease) 0.18s;
+  opacity: 0.6;
+}
+
+.nav__chevron--collapsed {
+  transform: rotate(0deg);
+}
+
+.nav__link[aria-expanded="true"] .nav__chevron {
+  transform: rotate(90deg);
+}
+
+/* The chevron and the count both push right, so keep them apart. */
+.nav__link[aria-expanded="true"] .nav__badge {
+  margin-left: 0;
+  order: 3;
+}
+
+.nav__link[aria-expanded="true"] .nav__chevron {
+  order: 4;
+  margin-left: var(--sp-2);
+}
+
+.nav__sub {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 2px 0 var(--sp-2);
+  padding-left: var(--sp-4);
+}
+
+.nav__sublink {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px var(--sp-3);
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  transition: background var(--ease) 0.15s, color var(--ease) 0.15s;
+}
+
+.nav__sublink:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.nav__sublink--active {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-weight: 580;
+}
+
+.nav__subdot {
+  flex-shrink: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.nav__sublink--active .nav__subdot {
+  opacity: 1;
+}
+
+/* Long pipeline names truncate rather than widening the sidebar. */
+.nav__sublabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav__subbadge {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  background: var(--surface-hover);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.nav__hint {
+  margin: 0 0 var(--sp-2);
+  padding: 0 var(--sp-3) 0 calc(var(--sp-4) + var(--sp-3));
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+}
+
+/* Pipeline overview: one card per stage. */
+.stage__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.stage__swatch {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.stage__name {
+  font-weight: 620;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage__desc {
+  margin: var(--sp-1) 0 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.stage__meta {
+  margin-top: var(--sp-3);
+}
+
+.stage__probability {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  font-weight: 560;
+}
+
+.stage__bar {
+  margin-top: 6px;
+  height: 4px;
+  border-radius: var(--r-full);
+  background: var(--surface-hover);
+  overflow: hidden;
+}
+
+.stage__bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--grad-brand);
+}
+
+.stage__empty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--sp-3) 0 0;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
 .shell__user {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -871,7 +1068,7 @@ code {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  padding: var(--sp-3) var(--sp-8);
+  padding: var(--sp-3) var(--sp-5);
   background: color-mix(in srgb, var(--bg) 82%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -888,7 +1085,9 @@ code {
 }
 
 .shell__content {
-  padding: var(--sp-8);
+  /* Tight gutter: this is a data-dense CRM, so horizontal space is better spent
+     on the table than on margins. */
+  padding: var(--sp-5);
   flex: 1;
 }
 
@@ -930,18 +1129,73 @@ code {
 }
 
 /* ---------- page ---------- */
+/* The page is a single card surface. Header is its head, .page__body its body -
+   instead of a loose stack of floating panels. */
 .page {
-  max-width: 1120px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  /* No overflow:hidden here. It would turn .page into the nearest scrollport and
+     silently break the sticky table headers on Team / Sessions. The head rounds
+     its own corners instead. */
   animation: fade-up 0.3s var(--ease-out);
 }
 
 .page__header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: var(--sp-4);
-  margin-bottom: var(--sp-6);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  border-radius: calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px) 0 0;
+  flex-wrap: wrap;
+}
+
+.page__body {
+  padding: var(--sp-5);
+}
+
+/* Inside the page card, a .panel becomes a flat section: no second card, just a
+   hairline above it. Without this the body read as cards nested in a card. */
+.page__body > .panel,
+.page__body .columns > .stack > .panel,
+.page__body > .columns > .panel {
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.page__body > .panel + .panel,
+.page__body .columns > .stack > .panel + .panel,
+.page__body > .columns > .panel + .panel {
+  margin-top: var(--sp-6);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--sp-6);
+}
+
+/* A flushed panel (Team / Sessions tables) keeps its border, but no
+   overflow:hidden - the same reason as .page, and .table-wrap rounds itself. */
+.page__body > .panel--flush {
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+/* The tabs strip acts as a second-level nav inside the card head area. */
+.page__body > .tabs {
+  margin-bottom: var(--sp-5);
+}
+
+/* Action rows sit directly under the content above them. */
+.page__body > .row {
+  margin-top: var(--sp-4);
   flex-wrap: wrap;
 }
 
@@ -962,6 +1216,974 @@ code {
   display: flex;
   align-items: center;
   gap: var(--sp-3);
+  /* The pipeline header puts five actions here; without wrapping they would
+     overflow on narrower screens. */
+  flex-wrap: wrap;
+}
+
+/* Pipeline header only: the back arrow, title, four actions and the search
+   field are held on a single line. Scoped with a modifier so Team / Sessions
+   keep wrapping. */
+.page__header--row {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.page__header--row .pipeline__headtitle {
+  flex: 0 0 auto;
+}
+
+.page__header--row .page__actions {
+  flex-wrap: nowrap;
+  margin-left: auto;
+}
+
+/* Labels must not clip, so the field is what absorbs the squeeze. */
+.page__header--row .page__actions .btn {
+  flex: 0 0 auto;
+}
+
+/* Back arrow and title share one line. */
+.pipeline__headtitle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+/* ---------- lead funnel by stages ---------- */
+
+.funnel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.funnel__title {
+  margin: 0;
+  font-size: var(--fs-xl);
+  font-weight: 660;
+  letter-spacing: -0.02em;
+}
+
+/* ---- overview ---- */
+
+.funnel__overview {
+  padding: var(--sp-5);
+  background: linear-gradient(180deg, var(--accent-soft) 0%, var(--surface) 70%);
+  border: 1px solid color-mix(in srgb, var(--brand-300) 35%, var(--border));
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.funnel__overviewHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: 580;
+  color: var(--text);
+}
+
+.funnel__overviewMeta {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}
+
+.funnel__rings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin-top: var(--sp-5);
+}
+
+.funnel__ringwrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+/* Bordered circle rather than a pie: the three numbers are what matter, and a
+   donut would imply a proportion of a whole that they are not. */
+.funnel__ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.funnel__ring--blue {
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-500) 12%, transparent);
+}
+
+.funnel__ringValue {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.funnel__ringPct {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.funnel__ringLabel {
+  font-size: var(--fs-sm);
+  font-weight: 560;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.funnel__rule {
+  height: 1px;
+  margin: var(--sp-5) 0;
+  background: var(--border);
+}
+
+.funnel__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+}
+
+@media (max-width: 700px) {
+  .funnel__rings,
+  .funnel__stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.funnel__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.funnel__statLabel {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 620;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.funnel__statValue {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.funnel__statValue--blue {
+  color: var(--brand-500);
+}
+
+.funnel__statValue--purple {
+  color: #a855f7;
+}
+
+.funnel__statHint {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.funnel__note {
+  margin-top: var(--sp-3);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+/* ---- stage breakdown ---- */
+
+.funnel__breakdownTitle {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--fs-base);
+  font-weight: 620;
+}
+
+.funnel__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.funnel__row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.funnel__rowTop {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.funnel__rowLabel {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 12px;
+  border: 1px solid;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  font-weight: 560;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.funnel__rowCount {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: var(--fs-sm);
+  font-weight: 620;
+  line-height: 1.25;
+}
+
+.funnel__rowPct {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}
+
+.funnel__rowTrack {
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--surface-hover);
+  overflow: hidden;
+}
+
+.funnel__rowFill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-full);
+  transition: width var(--dur-slower) var(--ease-out);
+}
+
+/* Pipeline page: stages on the left, campaign list in a side rail. */
+.pipeline-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--sp-4);
+  align-items: start;
+}
+
+.pipeline-layout__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .pipeline-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- lead upload ---------- */
+
+.upload {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--sp-4);
+  align-items: start;
+  margin-bottom: var(--sp-4);
+}
+
+@media (max-width: 1000px) {
+  .upload {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-10) var(--sp-5);
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--dur-base) var(--ease), background var(--dur-base) var(--ease),
+    color var(--dur-base) var(--ease);
+}
+
+.dropzone:hover {
+  border-color: var(--brand-300);
+  background: var(--accent-soft);
+}
+
+.dropzone--over {
+  border-color: var(--brand-500);
+  border-style: solid;
+  background: var(--accent-soft);
+}
+
+.dropzone__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+}
+
+.dropzone__hint,
+.dropzone__file {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.dropzone__file strong {
+  color: var(--text);
+}
+
+/* Kept in the DOM for the click-to-browse, but never shown. */
+.dropzone__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.upload__actions {
+  margin-top: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.upload__total {
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+}
+
+/* ---------- campaign list card ---------- */
+
+.camp-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.camp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  transition: border-color var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease);
+}
+
+.camp:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.camp__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.camp__name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.camp__prio {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: var(--r-full);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: var(--fs-xs);
+  font-weight: 650;
+}
+
+.camp__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.camp__tag {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 540;
+}
+
+.camp__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.camp__owner {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.camp__agents {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* As a button it needs the reset, or it inherits button chrome. */
+.camp--click {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.camp--click:hover {
+  border-color: var(--brand-300);
+  background: var(--accent-soft);
+}
+
+.camp--click:focus-visible {
+  outline: 2px solid var(--brand-400);
+  outline-offset: 2px;
+}
+
+.camp-list > li {
+  list-style: none;
+}
+
+/* ---------- campaign analytics ---------- */
+
+.analytics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.analytics__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.analytics__ident {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.analytics__logo {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+}
+
+.analytics__title {
+  margin: 0;
+  font-size: var(--fs-2xl);
+  font-weight: 660;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.analytics__lede {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.analytics__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.analytics__priority {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  background: var(--surface);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+}
+
+.analytics__priority strong {
+  color: var(--text);
+  font-weight: 650;
+}
+
+.analytics__action {
+  position: relative;
+}
+
+.analytics__actionChev {
+  display: flex;
+  margin-left: 4px;
+  transition: transform var(--dur-base) var(--ease);
+}
+
+.analytics__actionChev--open {
+  transform: rotate(90deg);
+}
+
+.analytics__menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  padding: var(--sp-1);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  animation: rise-in var(--dur-fast) var(--ease-out);
+}
+
+.analytics__menu button {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 8px var(--sp-2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--text-secondary);
+  font-size: var(--fs-sm);
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.analytics__menu button:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+/* Listed but not built yet - visibly inert rather than doing nothing on click. */
+.analytics__menu button:disabled {
+  color: var(--text-muted);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.analytics__menu button:disabled:hover {
+  background: none;
+  color: var(--text-muted);
+}
+
+/* Small stat strip, sits to the right of the page header. */
+.analytics__mini {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+  max-width: 360px;
+  margin-left: auto;
+}
+
+.mini {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-xs);
+}
+
+.mini__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-md);
+}
+
+.mini__icon--blue {
+  background: rgba(59, 130, 246, 0.14);
+  color: #3b82f6;
+}
+
+.mini__icon--purple {
+  background: rgba(168, 85, 247, 0.14);
+  color: #a855f7;
+}
+
+.mini__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mini__label {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mini__value {
+  font-size: var(--fs-lg);
+  font-weight: 660;
+  line-height: 1.2;
+}
+
+.analytics__panelTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+/* ---- coloured KPI row ---- */
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-3);
+}
+
+@media (max-width: 900px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .analytics__mini {
+    margin-left: 0;
+    max-width: none;
+  }
+}
+
+.kpi {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--r-lg);
+  color: #fff;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.kpi--blue {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.kpi--purple {
+  background: linear-gradient(135deg, #9333ea 0%, #c026d3 100%);
+}
+
+.kpi--green {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+.kpi--orange {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+}
+
+.kpi__label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  opacity: 0.92;
+}
+
+.kpi__value {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.kpi__icon {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+  display: flex;
+  opacity: 0.4;
+}
+
+/* ---- distribution + tags ---- */
+
+.analytics__split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--sp-4);
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .analytics__split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.analytics__note {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-xs);
+}
+
+.dist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dist__row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dist__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.dist__name {
+  font-size: var(--fs-sm);
+  font-weight: 540;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dist__count {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.dist__track {
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--surface-hover);
+  overflow: hidden;
+}
+
+.dist__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-full);
+  background: var(--brand-500);
+  transition: width var(--dur-slower) var(--ease-out);
+}
+
+/* ---- tags summary ---- */
+
+.tagsum {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: var(--sp-2);
+}
+
+.tagsum__stage {
+  position: relative;
+  padding-left: var(--sp-3);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.tagsum__stage::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--brand-500);
+}
+
+.tagsum__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.tagsum__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  font-size: var(--fs-xs);
+  font-weight: 540;
+}
+
+.tagsum__count {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.upload-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+/* Icon-only row actions, matching the reference table. */
+.rowacts {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.icon-btn--sm {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
+}
+
+.icon-btn--sm:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.icon-btn--danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ---------- campaign detail ---------- */
+
+.detail {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: var(--sp-4);
+  align-items: start;
+}
+
+.detail__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  min-width: 0;
+}
+
+.detail__main {
+  min-width: 0;
+}
+
+@media (max-width: 1000px) {
+  .detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
+  border-top: 1px solid var(--border);
+}
+
+.pager__label {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+/* Scroll anchor for the infinite list, and the end-of-list marker. */
+.camp-more {
+  display: flex;
+  justify-content: center;
+  padding: var(--sp-3) 0 var(--sp-1);
+  font-size: var(--fs-xs);
+}
+/* Campaign search in the pipeline header. Fixed width so the four buttons and
+   the field share the row without the field claiming all the spare space. */
+.pipeline__search {
+  flex: 0 1 180px;
+  min-width: 140px;
+}
+
+.pipeline__search .input {
+  padding-left: 36px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  font-size: var(--fs-sm);
 }
 
 /* ---------- stat cards ---------- */
@@ -1710,6 +2932,348 @@ code {
   max-width: 440px;
 }
 
+.modal__panel--lg {
+  max-width: 620px;
+}
+
+/* ---------- create campaign form ---------- */
+
+/* This form is tall. The shared .modal__body caps at 56vh, which pushed the
+   "Additional settings" row below an inner scroll - it looked missing. */
+.modal__panel--lg .modal__body {
+  max-height: min(72vh, 660px);
+}
+
+/* Two columns so the whole form fits without scrolling. */
+.cc-body {
+  gap: var(--sp-4);
+}
+
+/* .field carries `flex: 1`, which is right for a flex ROW (sharing width) but
+   wrong here: .modal__body is a flex column with a max-height, so flex-basis:0
+   made every field shrink to fit. The content got squashed instead of
+   overflowing, so the body never showed a scrollbar and the bottom of the form
+   was unreachable. */
+.cc-body > *,
+.cc-grid > * {
+  flex: 0 0 auto;
+}
+
+/* Single column. Two columns squeezed the three lead-distribution boxes into a
+   half-width cell, where their labels wrapped, and left the second row lopsided
+   with a select beside a row of wide card controls. */
+.cc-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-4);
+}
+
+/* Agent multi-select. A dropdown rather than an always-open checklist, so it
+   costs the form one row instead of a tall block. */
+.cc-multi {
+  position: relative;
+}
+
+.cc-multi__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: 10px 13px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-size: var(--fs-base);
+  text-align: left;
+  transition: border-color var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease);
+}
+
+.cc-multi__trigger:hover:not(:disabled) {
+  border-color: var(--brand-300);
+}
+
+.cc-multi__trigger[aria-expanded="true"] {
+  border-color: var(--brand-400);
+  box-shadow: var(--ring);
+}
+
+.cc-multi__trigger--invalid {
+  border-color: var(--danger);
+}
+
+.cc-multi__placeholder {
+  color: var(--text-muted);
+}
+
+.cc-multi__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 540;
+}
+
+.cc-multi__chev {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform var(--dur-base) var(--ease);
+}
+
+.cc-multi__trigger[aria-expanded="true"] .cc-multi__chev {
+  transform: rotate(90deg);
+}
+
+.cc-multi__panel {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-1);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-lg);
+  animation: rise-in var(--dur-fast) var(--ease-out);
+  max-height: 216px;
+  overflow-y: auto;
+}
+
+.cc-multi__option {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 7px var(--sp-2);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.cc-multi__option:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.cc-multi__option--on {
+  font-weight: 580;
+}
+
+.cc-multi__tick {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  color: transparent;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.cc-multi__option--on .cc-multi__tick {
+  background: var(--grad-brand);
+  border-color: transparent;
+  color: #fff;
+}
+
+.cc-multi__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cc-multi__role {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.cc-multi__clear {
+  margin-top: var(--sp-1);
+  padding: 7px;
+  border: 0;
+  border-top: 1px solid var(--border-subtle);
+  background: none;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 560;
+  border-radius: var(--r-sm);
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+
+.cc-multi__clear:hover:not(:disabled) {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+.cc-multi__empty {
+  padding: var(--sp-3);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+/* Lead distribution: stacked radio cards. Each option carries a sentence, so
+   three across left no room for the text. */
+.cc-choice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.cc-choice__box {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: 11px var(--sp-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text-secondary);
+  text-align: left;
+  transition: background var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease),
+    color var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease);
+}
+
+.cc-choice__box:hover:not(:disabled) {
+  border-color: var(--brand-300);
+  background: var(--accent-soft);
+}
+
+/* Radio dot, drawn rather than a native input so it can sit on the left. */
+.cc-choice__tick {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  transition: border-color var(--dur-base) var(--ease), background var(--dur-base) var(--ease),
+    box-shadow var(--dur-base) var(--ease);
+}
+
+.cc-choice__box:hover:not(:disabled) .cc-choice__tick {
+  border-color: var(--brand-400);
+}
+
+.cc-choice__box--on {
+  border-color: var(--brand-400);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.cc-choice__box--on .cc-choice__tick {
+  border-color: transparent;
+  background: var(--grad-brand);
+  box-shadow: var(--shadow-brand);
+}
+
+.cc-choice__box--on .cc-choice__tick::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.cc-choice__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cc-choice__label {
+  font-size: var(--fs-sm);
+  font-weight: 580;
+  color: var(--text);
+}
+
+.cc-choice__desc {
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+/* Additional settings disclosure. */
+.cc-advanced {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.cc-advanced__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: 12px var(--sp-3);
+  background: none;
+  border: 0;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 580;
+  text-align: left;
+  transition: color var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
+}
+
+.cc-advanced__toggle:hover {
+  background: var(--surface-hover);
+}
+
+.cc-advanced__label {
+  white-space: nowrap;
+}
+
+/* Sits between the label and the chevron, so the row reads as clickable. Only
+   the chevron takes the auto margin - with both doing, the free space was split
+   between them and the hint floated into the middle of the row. */
+.cc-advanced__hint {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+}
+
+.cc-advanced__chev {
+  display: flex;
+  flex-shrink: 0;
+  margin-left: var(--sp-2);
+  transition: transform var(--dur-base) var(--ease);
+}
+
+.cc-advanced__chev--open {
+  transform: rotate(90deg);
+}
+
+.cc-advanced__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
 .modal__foot--end {
   justify-content: flex-end;
 }
@@ -2443,6 +4007,386 @@ select.input {
   }
 }
 
+/* ==========================================================================
+   Vibrant layer
+   Colour is driven by the tokens above, so this block only adds the
+   atmosphere and the motion on top. Kept above the responsive queries' plain
+   rules but below them in the file, so media queries still win.
+   ========================================================================== */
+
+/* ---------- keyframes ---------- */
+
+/* Content arriving: a short rise plus fade. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* A highlight travelling across a button on hover. */
+@keyframes sheen-sweep {
+  from {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(220%) skewX(-18deg);
+  }
+}
+
+/* Stage probability bars fill up once when they come into view. */
+@keyframes bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--ring);
+  }
+  50% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+/* ---------- shell ---------- */
+
+.shell {
+  position: relative;
+  background: var(--bg);
+}
+
+.shell__sidebar {
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-right-color: color-mix(in srgb, var(--brand-300) 40%, var(--border));
+  box-shadow: var(--shadow-sm);
+}
+
+/* The brand mark carries the brand gradient and reacts on hover. */
+.brand__mark {
+  background-size: 180% 180%;
+  transition: transform var(--dur-base) var(--ease-spring), box-shadow var(--dur-base) var(--ease);
+}
+
+.brand:hover .brand__mark {
+  transform: rotate(-6deg) scale(1.06);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.45);
+  background-position: 100% 50%;
+}
+
+.topbar {
+  border-bottom-color: color-mix(in srgb, var(--brand-300) 35%, var(--border));
+  box-shadow: 0 1px 0 var(--surface), var(--shadow-xs);
+}
+
+/* ---------- navigation ---------- */
+
+.nav__link {
+  transition: background var(--dur-base) var(--ease), color var(--dur-base) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+
+/* Hover feedback is the background/colour change above. A sideways nudge was
+   removed: transforms count towards scrollable overflow, and inside the
+   scrolling .nav it raised a horizontal scrollbar. */
+
+.nav__link--active {
+  background: linear-gradient(90deg, var(--accent-soft), transparent 90%);
+}
+
+.nav__link--active::before {
+  background: var(--grad-brand);
+  box-shadow: 0 0 12px var(--brand-400);
+  animation: pop-in var(--dur-base) var(--ease-out);
+}
+
+/* ---------- cards, panels, stats ---------- */
+
+.panel,
+.stat {
+  transition: box-shadow var(--dur-base) var(--ease), transform var(--dur-base) var(--ease),
+    border-color var(--dur-base) var(--ease);
+}
+
+.panel {
+  border-color: color-mix(in srgb, var(--brand-200) 55%, var(--border));
+  box-shadow: var(--shadow-sm);
+}
+
+.stat:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--brand-300) 60%, var(--border));
+  box-shadow: var(--shadow-md);
+}
+
+.stat::after {
+  background: var(--grad-accent);
+  transition: opacity var(--dur-base) var(--ease);
+}
+
+.stat:hover::after {
+  opacity: 1;
+}
+
+.stat__value {
+  /* Solid ink, not gradient text: a large figure has to stay legible and a
+     magenta gradient on every dashboard number read as decoration. */
+  color: var(--text);
+}
+
+/* ---------- buttons ---------- */
+
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: background var(--dur-base) var(--ease), color var(--dur-base) var(--ease),
+    border-color var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn--primary {
+  background: var(--grad-brand);
+  background-size: 160% 160%;
+  box-shadow: var(--shadow-brand);
+  transition: background-position var(--dur-slow) var(--ease), box-shadow var(--dur-base) var(--ease),
+    transform var(--dur-fast) var(--ease);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background-position: 100% 50%;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4), 0 16px 36px rgba(192, 38, 211, 0.3);
+}
+
+/* A single highlight crosses the button, then stops. */
+.btn--primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn--primary:hover:not(:disabled)::after {
+  opacity: 1;
+  animation: sheen-sweep var(--dur-slower) var(--ease-out);
+}
+
+.btn--secondary,
+.btn--ghost {
+  transition: background var(--dur-base) var(--ease), color var(--dur-base) var(--ease),
+    border-color var(--dur-base) var(--ease), transform var(--dur-fast) var(--ease);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  border-color: var(--brand-300);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.icon-btn {
+  transition: background var(--dur-base) var(--ease), color var(--dur-base) var(--ease),
+    transform var(--dur-fast) var(--ease-spring);
+}
+
+.icon-btn:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+
+/* ---------- forms ---------- */
+
+/* Transitions apply to both kinds of control. */
+.input,
+select.input {
+  transition: border-color var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease),
+    background var(--dur-base) var(--ease);
+}
+
+/* The select arrow only - and it must repeat nowhere. This used to be folded
+   into the rule above, which put the chevron on every text input too; with
+   background-repeat defaulting to repeat it tiled across the field.
+   The colour was also hardcoded #7b819b, the old --text-muted, so it was
+   invisible in dark mode. Restated per theme to track the token. */
+select.input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237b6f9c' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px 16px;
+}
+
+[data-theme="dark"] select.input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238f80b8' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.input:focus {
+  border-color: var(--brand-400);
+  box-shadow: var(--ring);
+  animation: pulse-ring var(--dur-slower) var(--ease) 1;
+}
+
+/* ---------- tables ---------- */
+
+.table-wrap {
+  border-radius: var(--r-lg);
+}
+
+.table thead th {
+  position: sticky;
+  /* Scoped to .table-wrap, not the viewport: .table-wrap sets overflow-x:auto,
+     and the CSS overflow spec then computes overflow-y to auto as well, making
+     it the nearest scrollport. Since .table-wrap has no height limit it never
+     scrolls vertically, so these headers do not actually stick while the page
+     scrolls. top is 0 accordingly. */
+  top: 0;
+  z-index: 1;
+  background: color-mix(in srgb, var(--surface-2) 94%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.table tbody tr {
+  transition: background var(--dur-base) var(--ease);
+}
+
+.table tbody tr:hover {
+  background: var(--accent-soft);
+}
+
+/* ---------- badges, chips, tags ---------- */
+
+/* Only the brand badge takes the gradient. .badge--ok is a *status* colour, so
+   it keeps the green palette - a magenta "Active" badge read as a bug. */
+.badge--brand {
+  background: var(--grad-accent);
+  color: #fff;
+  border-color: transparent;
+}
+
+.chip,
+.chiptag {
+  transition: background var(--dur-base) var(--ease), color var(--dur-base) var(--ease),
+    border-color var(--dur-base) var(--ease), transform var(--dur-fast) var(--ease);
+}
+
+.chip--active {
+  background: var(--grad-brand);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--shadow-brand);
+}
+
+/* ---------- overlays ---------- */
+
+.modal__panel,
+.confirm {
+  animation: pop-in var(--dur-base) var(--ease-out);
+  box-shadow: var(--shadow-lg);
+  border-color: color-mix(in srgb, var(--brand-200) 55%, var(--border));
+}
+
+.kebab__menu {
+  animation: rise-in var(--dur-fast) var(--ease-out);
+  box-shadow: var(--shadow-lg);
+}
+
+.tabs__tab {
+  transition: color var(--dur-base) var(--ease), background var(--dur-base) var(--ease),
+    border-color var(--dur-base) var(--ease);
+}
+
+.tabs__tab--active {
+  color: var(--accent-text);
+  border-bottom-color: var(--brand-500);
+}
+
+/* ---------- login ---------- */
+
+.auth__aside {
+  background: var(--grad-brand);
+}
+
+.auth__grid-lines {
+  opacity: 0.16;
+}
+
+/* ---------- pipeline page ---------- */
+
+/* Probability bars grow from the left when a stage first renders. */
+.stage__bar-fill {
+  transform-origin: left center;
+  animation: bar-fill var(--dur-slower) var(--ease-out) both;
+}
+
+.stage__swatch {
+  transition: transform var(--dur-base) var(--ease-spring), box-shadow var(--dur-base) var(--ease);
+}
+
+/* ---------- entrance motion ---------- */
+
+.page,
+.stack > .panel,
+.grid > .stat,
+.pipeline__detail,
+.toast {
+  animation: rise-in var(--dur-slow) var(--ease-out) both;
+}
+
+.stat:nth-child(2) {
+  animation-delay: 40ms;
+}
+.stat:nth-child(3) {
+  animation-delay: 80ms;
+}
+.stat:nth-child(4) {
+  animation-delay: 120ms;
+}
+.stat:nth-child(5) {
+  animation-delay: 160ms;
+}
+.stat:nth-child(6) {
+  animation-delay: 200ms;
+}
+
+/* ---------- reduced motion ----------
+   The global guard below already neutralises every animation and transition, so
+   this only needs to cover the non-animation state changes it cannot reach. */
+@media (prefers-reduced-motion: reduce) {
+  .brand__mark {
+    animation: none !important;
+    background-position: 0% 50% !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -2498,6 +4442,13 @@ select.input {
   }
   .nav__link--active::before {
     display: none;
+  }
+
+  /* Six controls will not fit one line on a phone, so let this header wrap
+     instead of overflowing the card. */
+  .page__header--row,
+  .page__header--row .page__actions {
+    flex-wrap: wrap;
   }
   .shell__user {
     margin-left: auto;

@@ -80,9 +80,10 @@ export const Dashboard = () => {
         </div>
       </header>
 
-      {error ? <Alert tone="error">{error}</Alert> : null}
+      <div className="page__body">
+        {error ? <Alert tone="error">{error}</Alert> : null}
 
-      <div className="grid grid--4">
+        <div className="grid grid--4">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)
           : stats.map((stat) => (
@@ -214,6 +215,7 @@ export const Dashboard = () => {
             </div>
           </section>
         </div>
+      </div>
       </div>
     </div>
   );

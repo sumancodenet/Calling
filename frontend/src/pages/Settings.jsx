@@ -17,22 +17,24 @@ export const Settings = () => (
       </div>
     </header>
 
-    <nav className="tabs" aria-label="Settings sections">
-      {TABS.map((tab) => (
-        <NavLink
-          key={tab.to}
-          to={tab.to}
-          end={tab.end}
-          className={({ isActive }) => (isActive ? "tabs__tab tabs__tab--active" : "tabs__tab")}
-        >
-          <Icon name={tab.icon} size={15} />
-          {tab.label}
-        </NavLink>
-      ))}
-    </nav>
+    <div className="page__body">
+      <nav className="tabs" aria-label="Settings sections">
+        {TABS.map((tab) => (
+          <NavLink
+            key={tab.to}
+            to={tab.to}
+            end={tab.end}
+            className={({ isActive }) => (isActive ? "tabs__tab tabs__tab--active" : "tabs__tab")}
+          >
+            <Icon name={tab.icon} size={15} />
+            {tab.label}
+          </NavLink>
+        ))}
+      </nav>
 
-    <div className="tabs__panel">
-      <Outlet />
+      <div className="tabs__panel">
+        <Outlet />
+      </div>
     </div>
   </div>
 );

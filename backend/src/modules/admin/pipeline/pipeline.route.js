@@ -13,12 +13,17 @@ import {
   createTagController,
   updateTagController,
   deleteTagController,
+  funnelController,
 } from "./pipeline.controller.js";
-import { authenticate } from "../auth/auth.middleware.js";
+import { authenticate, requireRole } from "../auth/auth.middleware.js";
 import { validate } from "../../../middleware/validate.js";
 import { apiLimiter } from "../../../config/rateLimit.js";
+import { PIPELINE_MANAGER_ROLES } from "../../../constants/roles.js";
 
 const router = Router();
+
+// Structure changes are restricted; reading is open to any workspace member.
+const canManage = requireRole(...PIPELINE_MANAGER_ROLES);
 
 const pipeId = [param("pipelineId").isInt({ min: 1 }).withMessage("Invalid pipeline id").toInt()];
 const stageId = [...pipeId, param("stageId").isInt({ min: 1 }).withMessage("Invalid stage id").toInt()];
@@ -62,27 +67,28 @@ const updateTagRules = [
 ];
 
 router.get("/", authenticate, [query("Status").optional().trim().isIn(["ACTIVE", "ARCHIVED"])], validate, listController);
-router.post("/", authenticate, apiLimiter, [nameRule("name", "Pipeline name"), ...stageInputRules], validate, createController);
+router.post("/", authenticate, canManage, apiLimiter, [nameRule("name", "Pipeline name"), ...stageInputRules], validate, createController);
 
 router.get("/:pipelineId", authenticate, pipeId, validate, getController);
-router.patch("/:pipelineId", authenticate, apiLimiter, pipeId, [
+router.get("/:pipelineId/funnel", authenticate, pipeId, validate, funnelController);
+router.patch("/:pipelineId", authenticate, canManage, apiLimiter, pipeId, [
   body("name").optional().trim().notEmpty().withMessage("Pipeline name cannot be empty").isLength({ max: 120 }),
   body("description").optional({ values: "null" }).trim().isLength({ max: 255 }),
   body("position").optional().isInt({ min: 0 }),
   body("isDefault").optional().isBoolean(),
   body("Status").optional().trim().toUpperCase().isIn(["ACTIVE", "ARCHIVED"]).withMessage("Unknown status"),
 ], validate, updateController);
-router.delete("/:pipelineId", authenticate, pipeId, validate, deleteController);
+router.delete("/:pipelineId", authenticate, canManage, pipeId, validate, deleteController);
 
 // ---- stages ----
-router.post("/:pipelineId/stages", authenticate, apiLimiter, pipeId, stageRules, validate, createStageController);
+router.post("/:pipelineId/stages", authenticate, canManage, apiLimiter, pipeId, stageRules, validate, createStageController);
 router.get("/:pipelineId/stages/:stageId", authenticate, stageId, validate, getStageController);
-router.patch("/:pipelineId/stages/:stageId", authenticate, apiLimiter, stageId, updateStageRules, validate, updateStageController);
-router.delete("/:pipelineId/stages/:stageId", authenticate, stageId, validate, deleteStageController);
+router.patch("/:pipelineId/stages/:stageId", authenticate, canManage, apiLimiter, stageId, updateStageRules, validate, updateStageController);
+router.delete("/:pipelineId/stages/:stageId", authenticate, canManage, stageId, validate, deleteStageController);
 
 // ---- tags ----
-router.post("/:pipelineId/stages/:stageId/tags", authenticate, apiLimiter, stageId, tagRules, validate, createTagController);
-router.patch("/:pipelineId/stages/:stageId/tags/:tagId", authenticate, apiLimiter, tagId, updateTagRules, validate, updateTagController);
-router.delete("/:pipelineId/stages/:stageId/tags/:tagId", authenticate, tagId, validate, deleteTagController);
+router.post("/:pipelineId/stages/:stageId/tags", authenticate, canManage, apiLimiter, stageId, tagRules, validate, createTagController);
+router.patch("/:pipelineId/stages/:stageId/tags/:tagId", authenticate, canManage, apiLimiter, tagId, updateTagRules, validate, updateTagController);
+router.delete("/:pipelineId/stages/:stageId/tags/:tagId", authenticate, canManage, tagId, validate, deleteTagController);
 
 export default router;

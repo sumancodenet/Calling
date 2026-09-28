@@ -1,4 +1,6 @@
-const BASE_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8900").replace(/\/+$/, "");
+// Keep in sync with PORT in backend/.env. 8080 is not usable: Apache
+// (PEMHTTPD-x64) holds 0.0.0.0:8080 on this machine.
+const BASE_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8100").replace(/\/+$/, "");
 
 export class ApiError extends Error {
   constructor(status, code, message, details) {
@@ -156,7 +158,6 @@ export const auth = {
 
   listRoles: () => request("/api/auth/roles", { auth: true }),
   listUsers: (params) => request(`/api/users${qs(params)}`, { auth: true }),
-  listPipelines: () => request("/api/pipelines", { auth: true }),
 
   createUsers: (users) => request("/api/users/bulk", { method: "POST", auth: true, body: { users } }),
 
@@ -167,6 +168,8 @@ export const auth = {
 
   // ---- pipelines / stages / tags ----
   listPipelines: (params) => request(`/api/pipelines${qs(params)}`, { auth: true }),
+  getPipeline: (id) => request(`/api/pipelines/${id}`, { auth: true }),
+  pipelineFunnel: (id) => request(`/api/pipelines/${id}/funnel`, { auth: true }),
   createPipeline: (body) => request("/api/pipelines", { method: "POST", auth: true, body }),
   updatePipeline: (id, patch) => request(`/api/pipelines/${id}`, { method: "PATCH", auth: true, body: patch }),
   deletePipeline: (id) => request(`/api/pipelines/${id}`, { method: "DELETE", auth: true }),
@@ -182,6 +185,48 @@ export const auth = {
     request(`/api/pipelines/${pipelineId}/stages/${stageId}/tags/${tagId}`, { method: "PATCH", auth: true, body: patch }),
   deleteTag: (pipelineId, stageId, tagId) =>
     request(`/api/pipelines/${pipelineId}/stages/${stageId}/tags/${tagId}`, { method: "DELETE", auth: true }),
+
+  // ---- campaigns ----
+  listCampaigns: (params) => request(`/api/campaigns${qs(params)}`, { auth: true }),
+  campaignOptions: () => request("/api/campaigns/options", { auth: true }),
+  createCampaign: (body) => request("/api/campaigns", { method: "POST", auth: true, body }),
+  updateCampaignStatus: (id, Status) => request(`/api/campaigns/${id}/status`, { method: "PATCH", auth: true, body: { Status } }),
+  getCampaign: (id) => request(`/api/campaigns/${id}`, { auth: true }),
+  campaignAnalytics: (id) => request(`/api/campaigns/${id}/analytics`, { auth: true }),
+  deleteCampaign: (id) => request(`/api/campaigns/${id}`, { method: "DELETE", auth: true }),
+  listCampaignLeads: (id, params) => request(`/api/campaigns/${id}/leads${qs(params)}`, { auth: true }),
+  listUploadLeads: (id, uploadId, params) => request(`/api/campaigns/${id}/uploads/${uploadId}/leads${qs(params)}`, { auth: true }),
+  deleteUpload: (id, uploadId) => request(`/api/campaigns/${id}/uploads/${uploadId}`, { method: "DELETE", auth: true }),
+  uploadDownloadUrl: (id, uploadId) => request(`/api/campaigns/${id}/uploads/${uploadId}/download`, { auth: true }),
+
+  // Multipart: sent straight through fetch rather than the JSON `send` helper,
+  // so the browser sets the multipart boundary itself.
+  uploadCampaignLeads: async (id, formData) => {
+    if (!accessToken) throw new ApiError(401, "UNAUTHENTICATED", "Your session has ended. Please sign in again.");
+
+    let res;
+    try {
+      res = await fetch(`${BASE_URL}/api/campaigns/${id}/leads/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        credentials: "include",
+        body: formData,
+      });
+    } catch {
+      throw new ApiError(0, "NETWORK_ERROR", "Cannot reach the server. Check your connection.");
+    }
+
+    const payload = await readBody(res);
+    if (!res.ok) {
+      throw new ApiError(
+        res.status,
+        payload?.code ?? "ERROR",
+        payload?.message ?? "The upload failed",
+        payload?.data,
+      );
+    }
+    return payload;
+  },
 };
 
 export default auth;

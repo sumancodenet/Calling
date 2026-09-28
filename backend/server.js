@@ -10,6 +10,7 @@ import { notFoundHandler } from "./src/middleware/notFound.js";
 import authRoutes from "./src/modules/admin/auth/auth.route.js";
 import userRoutes from "./src/modules/admin/user/user.route.js";
 import pipelineRoutes from "./src/modules/admin/pipeline/pipeline.route.js";
+import campaignRoutes from "./src/modules/admin/campaign/campaign.route.js";
 
 const app = express();
 
@@ -31,7 +32,10 @@ app.use(
       // Same-origin/curl requests have no Origin header.
       if (!origin) return callback(null, true);
       if (allowlist.size === 0) return callback(null, false);
-      return callback(null, allowlist.has(origin));
+      if (allowlist.has(origin)) return callback(null, true);
+      // A rejected origin is invisible from the browser side, so say so here.
+      console.warn(`[cors] rejected origin: ${origin}`);
+      return callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
@@ -52,6 +56,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/pipelines", pipelineRoutes);
+app.use("/api/campaigns", campaignRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

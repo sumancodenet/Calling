@@ -7,6 +7,7 @@ import FormModal from "../../components/FormModal.jsx";
 import ConfirmDialog from "../../components/ConfirmDialog.jsx";
 import KebabMenu from "../../components/KebabMenu.jsx";
 import { useToast } from "../../components/Toast.jsx";
+import { usePipelines } from "../../context/PipelineContext.jsx";
 
 const TERMINAL = { isWon: "Won", isLost: "Lost" };
 
@@ -39,6 +40,7 @@ const TAG_FIELDS = (initial) => [
 
 export const PipelineTab = () => {
   const toast = useToast();
+  const { refresh: refreshPipelines } = usePipelines();
   const [rows, setRows] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [error, setError] = useState(null);
@@ -77,7 +79,12 @@ export const PipelineTab = () => {
 
   const selected = rows.find((p) => p.id === selectedId) ?? null;
 
-  const refresh = () => load();
+  // After any mutation the sidebar must follow along, so the shared list that
+  // feeds it is refreshed alongside this tab's own data.
+  const refresh = () => {
+    load();
+    refreshPipelines();
+  };
 
   const runDelete = async () => {
     setBusy(true);

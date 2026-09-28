@@ -62,9 +62,10 @@ export const Team = () => {
         </div>
       </header>
 
-      {error ? <Alert tone="error">{error}</Alert> : null}
+      <div className="page__body">
+        {error ? <Alert tone="error">{error}</Alert> : null}
 
-      <div className="panel panel--flush">
+        <div className="panel panel--flush">
         {loading ? (
           <TableSkeleton rows={4} cols={5} />
         ) : rows.length === 0 ? (
@@ -128,6 +129,7 @@ export const Team = () => {
             </table>
           </div>
         )}
+        </div>
       </div>
 
       <AddUsersModal open={adding} onClose={() => setAdding(false)} onCreated={load} />

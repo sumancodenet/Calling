@@ -60,6 +60,35 @@ export const env = {
     origins: toList(process.env.FRONTEND_URI),
   },
 
+  // Storage. Optional: without a bucket the app still runs and uploads are
+  // parsed and discarded as before. Half-configured is a hard error though,
+  // because it would fail later with a confusing SDK error instead.
+  ...(() => {
+    const bucket = process.env.AWS_S3_BUCKET_NAME?.trim();
+    const region = process.env.AWS_REGION?.trim();
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID?.trim();
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY?.trim();
+
+    if (bucket && !region) {
+      console.error("[config] AWS_S3_BUCKET_NAME is set but AWS_REGION is missing.");
+      process.exit(1);
+    }
+    if (Boolean(accessKeyId) !== Boolean(secretAccessKey)) {
+      console.error("[config] set both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY, or neither.");
+      process.exit(1);
+    }
+
+    return {
+      aws: {
+        region: region ?? "ap-south-1",
+        bucket: bucket ?? null,
+        accessKeyId: accessKeyId ?? null,
+        secretAccessKey: secretAccessKey ?? null,
+        cloudfrontUrl: process.env.AWS_CLOUDFRONT_URL?.trim() ?? null,
+      },
+    };
+  })(),
+
   seed: {
     tenantName: process.env.SEED_TENANT_NAME ?? "Demo Company",
     tenantSlug: process.env.SEED_TENANT_SLUG ?? "demo",

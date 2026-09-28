@@ -13,6 +13,7 @@ import {
   createTag,
   updateTag,
   deleteTag,
+  getPipelineFunnel,
 } from "./pipeline.service.js";
 
 const meta = (data) => ({ count: Array.isArray(data) ? data.length : 1 });
@@ -118,4 +119,11 @@ export const deleteTagController = asyncHandler(async (req, res) => {
     tagId: req.params.tagId,
   });
   return sendSuccess(res, { message: `Deleted tag ${data.name}`, data });
+});
+
+// ---- funnel ----
+
+export const funnelController = asyncHandler(async (req, res) => {
+  const data = await getPipelineFunnel({ tenantId: req.tenantId, id: req.params.pipelineId });
+  return sendSuccess(res, { message: "Lead funnel", data });
 });

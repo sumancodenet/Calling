@@ -1,5 +1,5 @@
-import { Op } from "sequelize";
-import { Pipelines, PipelineStages, StageTags } from "../../../models/index.js";
+import { Op, fn, col } from "sequelize";
+import { Pipelines, PipelineStages, StageTags, Campaigns, CampaignLeads } from "../../../models/index.js";
 import { badRequest, conflict, notFound } from "../../../utils/AppError.js";
 import { reviveOrCreate } from "../../../utils/reviveOrCreate.js";
 
@@ -432,3 +432,94 @@ export const deleteTag = async ({ tenantId, pipelineId, stageId, tagId }) => {
 };
 
 export { deriveFlags, publicPipeline, publicStage, publicTag };
+
+// ---------------------------------------------------------------- funnel
+
+/**
+ * Lead funnel for a whole pipeline: every lead belonging to any of its
+ * campaigns, grouped by the stage it currently sits in.
+ *
+ * Leads land in the first stage on import, so until leads are moved between
+ * stages the funnel is heavily front-loaded - that is expected, not a bug.
+ */
+export const getPipelineFunnel = async ({ tenantId, id }) => {
+  const pipeline = await Pipelines.findOne({ where: { id, tenantId }, attributes: ["id", "pipeline"] });
+  if (!pipeline) throw notFound("Pipeline not found");
+
+  const stages = await PipelineStages.findAll({
+    where: { pipelineId: id },
+    attributes: ["id", "name", "position", "color", "isWon", "isLost", "isTerminal"],
+    order: [["position", "ASC"], ["id", "ASC"]],
+  });
+
+  const campaignIds = (await Campaigns.findAll({ where: { pipelineId: id }, attributes: ["id"] })).map((c) => c.id);
+
+  // No campaigns means no leads can exist, so skip the query entirely.
+  const grouped = campaignIds.length
+    ? await CampaignLeads.findAll({
+        where: { tenantId, campaignId: { [Op.in]: campaignIds } },
+        attributes: ["stageId", [fn("COUNT", col("id")), "count"]],
+        group: ["stageId"],
+        raw: true,
+      })
+    : [];
+
+  const countByStage = new Map(grouped.map((row) => [row.stageId, Number(row.count)]));
+  const totalLeads = [...countByStage.values()].reduce((sum, n) => sum + n, 0);
+
+  const stageIds = new Set(stages.map((s) => s.id));
+  const breakdown = stages.map((stage) => {
+    const leads = countByStage.get(stage.id) ?? 0;
+    return {
+      stageId: stage.id,
+      name: stage.name,
+      color: stage.color,
+      isWon: stage.isWon,
+      isLost: stage.isLost,
+      isTerminal: stage.isTerminal,
+      leads,
+      percent: totalLeads === 0 ? 0 : Number(((leads / totalLeads) * 100).toFixed(1)),
+    };
+  });
+
+  // In progress = on a stage that has not closed a deal. Closed = on a stage
+  // marked won or lost, or on a stage flagged terminal.
+  const inProgress = breakdown.filter((s) => !s.isWon && !s.isLost && !s.isTerminal).reduce((sum, s) => sum + s.leads, 0);
+  const closed = totalLeads - inProgress;
+  const won = breakdown.filter((s) => s.isWon).reduce((sum, s) => sum + s.leads, 0);
+
+  // Leads whose stageId no longer matches a stage, so they are in no column.
+  const unplaced = [...countByStage.entries()]
+    .filter(([stageId]) => !stageIds.has(stageId))
+    .reduce((sum, [, n]) => sum + n, 0);
+
+  const pct = (n) => (totalLeads === 0 ? 0 : Number(((n / totalLeads) * 100).toFixed(1)));
+
+  // Dropoff between each pair of consecutive stages, averaged. A stage with no
+  // leads is skipped rather than counted as a 100% drop, which would let a
+  // single empty early stage swamp the average.
+  const dropoffs = [];
+  for (let i = 0; i < breakdown.length - 1; i += 1) {
+    const from = breakdown[i].leads;
+    if (from === 0) continue;
+    dropoffs.push(((from - breakdown[i + 1].leads) / from) * 100);
+  }
+  const avgDropoff = dropoffs.length
+    ? Number((dropoffs.reduce((sum, n) => sum + n, 0) / dropoffs.length).toFixed(1))
+    : 0;
+
+  return {
+    pipeline: { id: pipeline.id, name: pipeline.pipeline },
+    campaignCount: campaignIds.length,
+    totals: {
+      totalLeads,
+      inProgress,
+      closed,
+      won,
+      unplaced,
+      conversionRate: pct(won),
+      avgDropoff,
+    },
+    stages: breakdown,
+  };
+};

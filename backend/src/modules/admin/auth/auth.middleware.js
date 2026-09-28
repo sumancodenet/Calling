@@ -1,5 +1,5 @@
 import { verifyAccessToken } from "../../../utils/tokens.js";
-import { unauthorized } from "../../../utils/AppError.js";
+import { unauthorized, forbidden } from "../../../utils/AppError.js";
 import { asyncHandler } from "../../../utils/asyncHandler.js";
 import { getSessionUser } from "./auth.service.js";
 
@@ -32,7 +32,9 @@ export const requireRole =
   (req, res, next) => {
     if (!req.user) return next(unauthorized());
     if (!roles.includes(req.user.role)) {
-      return next(unauthorized(`Requires one of: ${roles.join(", ")}`));
+      // 403, not 401: the token is perfectly valid, this account simply may not do
+      // this. A 401 here would make the client burn a refresh and retry pointlessly.
+      return next(forbidden(`Requires one of: ${roles.join(", ")}`));
     }
     return next();
   };

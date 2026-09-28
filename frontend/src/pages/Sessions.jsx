@@ -68,9 +68,10 @@ export const Sessions = () => {
         </div>
       </header>
 
-      {error ? <Alert tone="error" onDismiss={() => setError(null)}>{error}</Alert> : null}
+      <div className="page__body">
+        {error ? <Alert tone="error" onDismiss={() => setError(null)}>{error}</Alert> : null}
 
-      <div className="panel panel--flush">
+        <div className="panel panel--flush">
         {loading ? (
           <TableSkeleton rows={3} cols={4} />
         ) : rows.length === 0 ? (
@@ -108,6 +109,7 @@ export const Sessions = () => {
             </table>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
